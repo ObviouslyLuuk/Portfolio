@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <link rel="shortcut icon" href="#"> <!-- This fixes the favicon.ico error -->
+
+    <!-- For simple scroll bar -->
+    <link href="https://unpkg.com/simplebar@latest/dist/simplebar.css" rel="stylesheet">
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.js"></script>    
+
+    <meta name = "viewport" content = "user-scalable=no,width=device-width">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href = "style.css" rel = "stylesheet" type = "text/css">
+    <title>Luuk's Portfolio</title>
+
+  </head>
+
+  <body>
+
+    <!-- Menu to navigate projects from the main page -->
+    <div id = "menu" style="z-index: 2;">
+      <a>menu</a>
+      <div id = "menu-list">
+        <br>
+        <a href = "index.html?maze">maze</a>
+        <a href = "index.html?racer">racer</a>
+        <a href = "index.html?digits">digits</a>
+        <a href = "index.html?cartpole">cartpole</a>
+        <a href = "index.html?stratego">stratego</a>
+      </div>
+    </div>
+
+  </body>
+
+  <script type = "text/javascript">
+
+    let part = String(window.location).split("?")[1];
+
+    let parts = {
+
+      "maze":     ["maze/controller-02.js",     "maze/display-03.js",     "default/engine-01.js", "maze/game-03.js",     "maze/main-03.js"],
+      "racer":    ["racer/controller-02.js",    "racer/display-03.js",    "default/engine-01.js", "racer/game-03.js",    "racer/main-03.js"],
+      "cartpole": ["cartpole/controller-02.js", "cartpole/display-03.js", "default/engine-01.js", "cartpole/game-03.js", "cartpole/main-03.js"],
+      "stratego": ["stratego/controller-02.js", "stratego/display-03.js", "default/engine-01.js", "stratego/game-03.js", "stratego/main-03.js"],
+      "digits":   ["digits/controller-02.js",   "digits/display-03.js",   "default/engine-01.js", "digits/game-03.js",   "digits/main-03.js"],
+
+    };
+
+    // Set default
+    if (!Object.keys(parts).includes(part)) {
+      
+      part = 'cartpole'
+      let url = String(window.location).split('?')[0] + '?' + part
+      window.location.href = url
+      
+    }
+
+    for (let index = 0; index < parts[part].length; index ++) {
+
+      let script = document.createElement("script");
+      script.setAttribute("type", "text/javascript");
+      script.setAttribute("src", parts[part][index]);
+      document.head.appendChild(script);
+
+    }
+
+    let script = document.createElement("script");
+    script.setAttribute("type", "module");
+    script.setAttribute("src", "ai/net_controller.js");
+    document.head.appendChild(script);   
+    
+    if (part == "digits") {
+      let script2 = document.createElement("script");
+      script2.setAttribute("type", "module");
+      script2.setAttribute("src", "ai/neural_net_module.js");
+      document.head.appendChild(script2);       
+    }
+
+    let menu      = document.getElementById("menu");
+    let menu_list = document.getElementById("menu-list");
+
+    menu.addEventListener("click", function(event) {
+
+      menu_list.style.display = (menu_list.style.display == "none") ? "grid" : "none";
+
+    });
+
+    menu_list.style.display = "none";
+
+  </script>  
+
+</html>

@@ -1,0 +1,1 @@
+Most of the layout and structure of my non-AI files was from this template/tutorial by Frank Poth: https://youtu.be/w-OKdSHRlfA

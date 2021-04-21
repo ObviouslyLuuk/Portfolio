@@ -1,0 +1,323 @@
+// Frank Poth 03/23/2017
+
+window.addEventListener("load", function(event) {
+
+  "use strict";
+
+    ///////////////////
+   //// FUNCTIONS ////
+  ///////////////////
+
+  var keyDownUp = function(event) {
+    controller.keyDownUp(event.type, event.keyCode);
+  };
+
+  var resize = function(event) {
+    display.resize(document.documentElement.clientWidth - 32, document.documentElement.clientHeight - 32, game.world.height / game.world.width);
+    display.render();
+  };
+
+  var render = function() {
+
+    display.updateStats(game, netController)
+    display.updateGraph(game)
+
+    game.get_weights(netController)
+    display.drawWeights(game.weights)
+    display.drawActivations(
+      activations,
+      ["Left", "Right", "Forward"],
+      // ["Left", "Right", "Forward", "Nothing"],
+      )
+
+    display.drawMap(game.world.map)
+    display.drawPlayer(game.world.player, game.world.player.color1, game.world.player.color2)
+
+    display.render()
+ 
+  };
+
+  var update = function() {
+
+    if (game.state == "drive") {
+      drive_update()
+    }
+    else if (game.state == "train") {
+      train_update()
+    }
+    else if (game.state == "draw") {
+      draw_update()
+    }
+
+  }
+
+  function draw_update() {
+    if (controller.del) { game.world.remove_from_map(controller.position) }
+  }
+
+  function train_update() {
+    score = game.world.score
+
+    if (game.world.player.collided || last_score_increase > game.no_target_time) {
+      last_score_increase = 0
+
+      netController.update()
+
+      game.finish_episode()
+
+      // If there's no improvement, give it a little push
+      if (netController.eta != 0) {
+        // console.log(game.episode_nr)
+        // if (game.scores[0] < mean(game.scores, 0, 10)) {
+        //   last_episode_improved++
+        //   console.log(`not improved: ${last_episode_improved} episodes`)
+        // } else {
+        //   last_episode_improved = 0
+        // }
+        // if (last_episode_improved > 10) {
+        //   last_episode_improved = 0
+        //   console.log("reset to best. (lack of improvement)")
+        //   game.set_best()
+        //   netController.epsilon = .3
+        //   netController.eta = netController.eta_begin*.5
+        // } else if (last_episode_improved > 5) {
+        //   netController.eta = netController.eta_begin
+        // } else if (last_episode_improved > 2 && netController.eta < netController.eta_begin*.5) {
+        //   netController.eta = netController.eta_begin*.5
+        // }
+        // if (last_episode_improved % 2 > 0 && netController.epsilon < .3) { // On odd numbers
+        //   netController.epsilon += .03
+        // }         
+      }
+
+      // If there's no improvement, give it a little push
+      if (netController.eta != 0) {
+        console.log(game.episode_nr)
+        let stagnation = check_stagnation(game.scores, 10)
+        if (stagnation) {
+          console.log(`stagnated: ${stagnation} episodes`)
+        }
+        if (stagnation >= 5 && netController.eta < netController.eta_begin*.5) {
+          netController.eta = netController.eta_begin*.5
+        }
+        if (stagnation >= 2 && netController.epsilon < .3) {
+          netController.epsilon += .03
+        }
+        let avg = mean(game.scores, 0, 30)
+        if (avg < game.world.map.targets.length*.5  && 
+            game.best_lap_time != Infinity          &&
+            game.episodes_since_best > 30) { // If the 30avg fell below half a lap (keeps repeating)
+          // Do this after the high score hasn't improved for a while?
+          // Or if it's just consistently worse than the high score or even highest average score?
+          console.log("reset to best. (lack of improvement)")
+          game.set_best()
+          netController.epsilon = 0.01
+          netController.eta = netController.eta_begin*.5
+        }        
+      }
+    }
+
+    netController.update_target_network()
+    let action = netController.get_policy(get_net_input())
+    activations = netController.get_activations()
+    do_action(action)
+    
+    game.update()
+
+    let done = game.world.player.collided
+    let reward = game.world.score - score
+
+    netController.store_in_memory(reward, get_net_input(), done)
+    netController.SGD()
+
+    if (reward > 0) {
+      last_score_increase = 0
+    } else {
+      last_score_increase++
+    }
+
+    if (netController.eta != 0) {
+      if (game.world.lap_steps == 1) {
+        let lap = game.world.lap
+        if (lap > 2 && netController.epsilon > netController.epsilon_end) { // Do this for every completed lap past two
+          netController.epsilon*=.95
+        } else if (lap == 2) {
+          netController.eta = netController.eta_begin/10
+        } else if (lap == 1) {
+          netController.eta = netController.eta_begin/2
+        }
+      }
+    }
+  }
+
+  // Manual control
+  function drive_update() {
+    // Just for visualization purposes
+    netController.get_policy(get_net_input())
+    activations = netController.get_activations()    
+
+    if (controller.left)  { game.world.player.turnLeft();  }
+    if (controller.right) { game.world.player.turnRight(); }
+    if (controller.up)    { game.world.player.moveForward(); }
+    if (controller.down)  { game.world.player.moveBackward(); }
+
+    game.update()
+  }
+
+  function fill_replay_memory() {
+    console.log("Filling replay memory:")
+
+    let pre_episodes = 0
+    for (let i = 0; i < netController.max_memory/5; i++) {
+      if (game.world.player.collided) {
+        game.reset()     
+
+        pre_episodes++
+      }
+
+      let action = netController.get_policy(get_net_input())
+      do_action(action)
+
+      let score = game.world.score
+      game.update()
+      let done = game.world.player.collided
+      let reward = game.world.score - score
+  
+      netController.store_in_memory(reward, get_net_input(), done) 
+    }
+    console.log("Pre Episodes: ", pre_episodes)
+  }
+
+  function do_action(a) {
+    for (let action of actions[a]) {
+      game.world.player[action]()
+    }      
+    return
+  }
+
+  function get_net_input() {
+    let net_input = [Math.sqrt(Math.pow(game.world.player.velocity.x, 2) + Math.pow(game.world.player.velocity.y, 2))/50]
+
+    for (let sensor of sensors) {
+      for (let dir of sensor.dirs) {
+        let dir_sensor = game.world.player.sensors[sensor.corner][dir]
+        if (!dir_sensor.enabled) continue
+
+        net_input.push(dir_sensor.distance/1000)
+      }
+    }
+    return net_input
+  }
+
+    /////////////////
+   //// OBJECTS ////
+  /////////////////
+
+  var display    = new Display();
+  var controller = new Controller();
+  var game       = new Game();
+  var engine     = new Engine(1000/60, render, update);
+
+  var sensors = [ // in order
+    {corner: "frontLeft", dirs: ["straight"]}, 
+    {corner: "frontRight", dirs: ["straight"]},
+    {corner: "frontLeft", dirs: ["side"]},
+    {corner: "frontRight", dirs: ["side"]},
+    {corner: "frontLeft", dirs: ["diag"]},
+    {corner: "frontRight", dirs: ["diag"]},
+  ]
+
+  game.world.player.set_sensors(sensors)
+
+  var actions = [
+    // ["moveForward", "turnLeft"],
+    // ["moveForward", "turnRight"],      
+    ["turnLeft"],
+    ["turnRight"],
+    ["moveForward"],
+    // ["moveBackward"],
+    // [],
+  ]
+
+  // friction: .93, lap length: 40, walldeath: -10
+  // For w/out backward, in: [vel, front, side, diag]       arg: {eta: .01,   batch_size: 1000, max_mem: 50000, ep_decay: 0}    Episode65
+  // For w/    backward, in: [vel, front, side, diag, back] arg: {eta: .001,  batch_size: 1000, max_mem: 15000, ep_decay: .995} Episode800
+  // walldeath: 0
+  // For w/    backward, in: [vel, front, side, diag, back] arg: {eta: .001,  batch_size: 1000, max_mem: 50000, ep_decay: .995} Episode716
+  var netController = new NetController(
+    [{x: get_net_input(), y: actions}],                   // io shape
+    [{type: "Dense", size:16}], // layers
+    .01,                                                 // eta
+    .99, // gamma
+    32,                                                   // batch_size 32
+    100000,                                                // max_memory
+    1,                                                    // epsilon
+    .01,                                                   // epsilon_end
+    .95,                                                // epsilon_decay
+    true,                                                 // double_dqn
+    1000                                                  // target_update_time
+  )
+
+  document.value = {
+    display: display,
+    controller: controller,
+    game: game,
+    engine: engine,
+    net_controller: netController,
+  }  
+
+    ////////////////////
+   //// INITIALIZE ////
+  ////////////////////
+
+  display.buffer.map.canvas.height = game.world.height;
+  display.buffer.map.canvas.width = game.world.width;  
+  display.buffer.car.canvas.height = game.world.height;
+  display.buffer.car.canvas.width = game.world.width;
+  display.context.map.canvas.height = game.world.height;
+  display.context.map.canvas.width = game.world.width;  
+  display.context.car.canvas.height = game.world.height;
+  display.context.car.canvas.width = game.world.width;
+
+
+  resize();
+
+  controller.init_buttons(game)
+  controller.init_draw()
+  display.graph = display.initGraph()
+  fill_replay_memory()
+
+  var score = 0 // For tracking score difference
+  var last_score_increase = 0 // For tracking whether the car is still moving forward
+  var last_episode_improved = 0 // For tracking (lack of) progress across episodes
+  var activations = null
+
+  engine.start()
+
+
+  window.addEventListener("keydown", keyDownUp);
+  window.addEventListener("keyup",   keyDownUp);
+  window.addEventListener("resize",  resize);
+
+});
+
+
+
+function mean(array, begin=0, end=Infinity) {
+  if (end == Infinity) end = array.length
+  let sum = 0
+  for (let i = begin; i < end; i++) { sum += array[i] }
+  return sum / (end-begin)
+} 
+
+function check_stagnation(array, end=Infinity) {
+  if (end == Infinity) end = array.length-1
+  let score = array[0]
+  let stagnated
+  for (stagnated = 0; stagnated < end; stagnated++) {
+    if (Math.abs(array[stagnated+1] - score) > 2 || array[stagnated+1]==undefined) { // If difference in score > 1
+      break
+    }
+  }
+  return stagnated
+}
