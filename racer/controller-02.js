@@ -7,9 +7,6 @@ class Controller {
 
     this.del   = false
 
-    // this.B     = false
-    // this.T     = false
-
     this.draw_type = "wall"
     this.position = {x: null, y: null}
   }
@@ -19,6 +16,20 @@ class Controller {
       let time_step = this.value*this.value*2
       document.value.engine.changeTimeStep(1000/time_step)
       document.getElementById("fps").innerHTML = time_step
+    }
+
+    document.getElementById("info_btn").onclick = function() {
+      let div = document.getElementById("info_div")
+      let display = div.style.display
+      if (display == 'none') {
+        div.style.display = 'block'
+      } else {
+        div.style.display = 'none'
+      }
+    }
+
+    document.getElementById("close_info_btn").onclick = function() {
+      document.getElementById("info_div").style.display = 'none'
     }
 
     document.getElementById("reset_btn").onclick = function() {
@@ -75,10 +86,6 @@ class Controller {
           let map = JSON.parse(load_event.target.result)
 
           document.value.game.world.set_map(map)
-          document.value.game.reset()
-          document.value.game.best_params = {layer_design: [], parameters: []}
-          document.value.game.best_score = -Infinity
-          document.value.game.best_lap_time = Infinity
       }
   
       reader.readAsText(input_event.target.files[0])
@@ -122,6 +129,25 @@ class Controller {
     document.getElementById("draw_dropdown").addEventListener('mouseout', function() {
       document.getElementById("draw_hover_div").style.display = "none"      
     })
+
+    document.getElementById("tracks_dropdown").addEventListener('mouseover', function() {
+      document.getElementById("tracks_hover_div").style.display = "grid"
+    })
+    document.getElementById("tracks_dropdown").addEventListener('mouseout', function() {
+      document.getElementById("tracks_hover_div").style.display = "none"      
+    })
+    document.getElementById("default_track_btn").onclick = function() {
+      document.value.game.world.map = {walls:[],targets:[]}
+      document.value.game.world.init_map()
+      document.value.game.reset()
+    }
+
+    for (let i of [1,2,3]) {
+      document.getElementById(`track${i}_btn`).onclick = function() {
+        let track = JSON.parse(document.value.game.tracks[i-1])
+        document.value.game.world.set_map(track)
+      }
+    }
 
     document.getElementById("clear_btn").onclick = function() {
       if (document.value.game.state == "draw") {

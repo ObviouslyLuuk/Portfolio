@@ -74,7 +74,7 @@ window.addEventListener("load", function(event) {
     if (game.world.done) {    
       game.reset()
     }
-    let res = game.world.update("")
+    let res = game.world.update("") // empty action to just update
     state = Object.values(res.state)
 
     // Manual controls --------------------------------------------------

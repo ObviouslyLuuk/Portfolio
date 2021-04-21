@@ -1,5 +1,2 @@
-# Ignore the stratego and maze projects because they aren't finished
-/stratego
-/maze
 *.py
 mnist_10k.js

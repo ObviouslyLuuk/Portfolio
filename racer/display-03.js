@@ -59,7 +59,7 @@ class Display {
             <div id="fps"></div>
           </div>
           <div id="content_top_left_bar_div" style="display:grid; grid-template-columns:auto auto auto auto; column-gap:5px;">
-            <button id="settings_btn" class="btn">Info</button>
+            <button id="info_btn" class="btn">Info</button>
             <button id="reset_btn" class="btn">Reset</button>
             <button id="save_btn" class="btn">Save</button>
             <input id="load_btn" type="file" name="files[]" style="display:none;">
@@ -88,7 +88,16 @@ class Display {
               <input id="load_map_btn" type="file" name="files[]" style="display:none;">
               <label for="load_map_btn" class="btn btn-light" style="margin: 0;">Load</label> 
             </div>
-            <button id="default_map_btn" class="btn">Tracks</button>            
+
+            <div id="tracks_dropdown">
+              <button id="tracks_btn" class="btn" style="width:100%;">Tracks</button>
+              <div id="tracks_hover_div" style="display:none; position: absolute;z-index:1;">
+                <button id="default_track_btn" class="btn" style="border-radius:0px;">Default</button>
+                <button id="track1_btn" class="btn" style="border-radius:0px;">Horseshoe</button>
+                <button id="track2_btn" class="btn" style="border-radius:0px;">Boomerang</button>
+                <button id="track3_btn" class="btn" style="border-radius:0px;">Thin</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -114,8 +123,8 @@ class Display {
     `
 
     let settings = `
-    <div data-simplebar style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;padding: 30px;">
-      <a id="close_settings_btn" class="btn" style="position: absolute;right: 5px;top: 0px;">x</a>
+    <div id="info_div" data-simplebar style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;padding: 30px; display:none;">
+      <a id="close_info_btn" class="btn" style="position: absolute;right: 5px;top: 0px;">x</a>
       <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
         <h2 style="justify-self: center;">Settings</h2>
         <div><input type="checkbox" id="1"> <label for="1">Option1</label></div>
@@ -136,7 +145,7 @@ class Display {
     document.getElementById("best_score").innerHTML = game.best_score
     if (game.avg_scores[0]) {
       document.getElementById("avg_score").innerHTML = game.avg_scores[0].toFixed(2) }
-    document.getElementById("current_score").innerHTML = `Score: ${game.world.score}`
+    document.getElementById("current_score").innerHTML = `Score: ${game.world.score.toFixed(1)}`
     document.getElementById("episodes_since_best").innerHTML = game.episodes_since_best
     document.getElementById("epsilon").value = net_controller.epsilon.toFixed(3)
     document.getElementById("eta").value = net_controller.eta
@@ -530,20 +539,6 @@ class Display {
       nn_canvas.height = graph_height      
 
     }
-
-    // if (height / width > height_width_ratio) {
-
-    //   this.context.map.canvas.height = width * height_width_ratio;
-    //   this.context.map.canvas.width = width;
-
-    // } else {
-
-    //   this.context.map.canvas.height = height;
-    //   this.context.map.canvas.width = height / height_width_ratio;
-
-    // }
-
-    // this.context.map.imageSmoothingEnabled = false;
 
   }
 

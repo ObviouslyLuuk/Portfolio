@@ -1,5 +1,4 @@
 import { Network } from "./neural_net.js"
-import { seeded_rand } from "./random.js"
 import { get_max_value_index } from "./helper.js"
 
 // credit: https://stackoverflow.com/questions/49338193/how-to-use-code-from-script-with-type-module

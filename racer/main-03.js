@@ -58,37 +58,12 @@ window.addEventListener("load", function(event) {
   function train_update() {
     score = game.world.score
 
-    if (game.world.player.collided || last_score_increase > game.no_target_time) {
+    if (game.world.player.collided || last_score_increase > game.no_target_time || timesteps > game.max_steps) {
       last_score_increase = 0
 
       netController.update()
 
       game.finish_episode()
-
-      // If there's no improvement, give it a little push
-      if (netController.eta != 0) {
-        // console.log(game.episode_nr)
-        // if (game.scores[0] < mean(game.scores, 0, 10)) {
-        //   last_episode_improved++
-        //   console.log(`not improved: ${last_episode_improved} episodes`)
-        // } else {
-        //   last_episode_improved = 0
-        // }
-        // if (last_episode_improved > 10) {
-        //   last_episode_improved = 0
-        //   console.log("reset to best. (lack of improvement)")
-        //   game.set_best()
-        //   netController.epsilon = .3
-        //   netController.eta = netController.eta_begin*.5
-        // } else if (last_episode_improved > 5) {
-        //   netController.eta = netController.eta_begin
-        // } else if (last_episode_improved > 2 && netController.eta < netController.eta_begin*.5) {
-        //   netController.eta = netController.eta_begin*.5
-        // }
-        // if (last_episode_improved % 2 > 0 && netController.epsilon < .3) { // On odd numbers
-        //   netController.epsilon += .03
-        // }         
-      }
 
       // If there's no improvement, give it a little push
       if (netController.eta != 0) {
@@ -106,7 +81,8 @@ window.addEventListener("load", function(event) {
         let avg = mean(game.scores, 0, 30)
         if (avg < game.world.map.targets.length*.5  && 
             game.best_lap_time != Infinity          &&
-            game.episodes_since_best > 30) { // If the 30avg fell below half a lap (keeps repeating)
+            game.episodes_since_best > 15           &&
+            game.last_set_to_best > 15) { // If the 30avg fell below half a lap
           // Do this after the high score hasn't improved for a while?
           // Or if it's just consistently worse than the high score or even highest average score?
           console.log("reset to best. (lack of improvement)")
@@ -119,8 +95,10 @@ window.addEventListener("load", function(event) {
 
     netController.update_target_network()
     let action = netController.get_policy(get_net_input())
-    activations = netController.get_activations()
+    activations = netController.get_activations() // for visualization
     do_action(action)
+
+    if (game.forward_bias && action == 2) {game.world.score+=game.forward_bias}
     
     game.update()
 
@@ -148,6 +126,7 @@ window.addEventListener("load", function(event) {
         }
       }
     }
+    timesteps++
   }
 
   // Manual control
@@ -287,9 +266,9 @@ window.addEventListener("load", function(event) {
   display.graph = display.initGraph()
   fill_replay_memory()
 
+  var timesteps = 0
   var score = 0 // For tracking score difference
   var last_score_increase = 0 // For tracking whether the car is still moving forward
-  var last_episode_improved = 0 // For tracking (lack of) progress across episodes
   var activations = null
 
   engine.start()
@@ -312,9 +291,10 @@ function mean(array, begin=0, end=Infinity) {
 
 function check_stagnation(array, end=Infinity) {
   if (end == Infinity) end = array.length-1
-  let score = array[0]
+  let score = array[0] // score of recent round
   let stagnated
   for (stagnated = 0; stagnated < end; stagnated++) {
+    // array goes from recent to old so array[stagnated+1] is the previous
     if (Math.abs(array[stagnated+1] - score) > 2 || array[stagnated+1]==undefined) { // If difference in score > 1
       break
     }
