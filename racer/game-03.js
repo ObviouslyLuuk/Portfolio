@@ -766,11 +766,12 @@ Game.World.Player = class {
 
   update() {
 
-    if (document.value.game.force_forward_player && document.value.game.force_forward) this.moveForward(document.value.game.force_forward)
-
     this.x += this.velocity.x;
     this.y += this.velocity.y;
 
+    let game = document.value.game
+    if (game.state == "drive" && !game.force_forward_player)  { return }
+    else if (game.force_forward)                              { this.moveForward(game.force_forward) }
   }
 
 };
