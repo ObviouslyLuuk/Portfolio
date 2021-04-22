@@ -137,9 +137,7 @@ class Controller {
       document.getElementById("tracks_hover_div").style.display = "none"      
     })
     document.getElementById("default_track_btn").onclick = function() {
-      document.value.game.world.map = {walls:[],targets:[]}
-      document.value.game.world.init_map()
-      document.value.game.reset()
+      document.value.game.world.set_default_map()
     }
 
     for (let i of [1,2,3]) {
@@ -177,6 +175,95 @@ class Controller {
         document.value.net_controller.eta = 0
       }
     }    
+  }
+
+  init_settings() {
+    this.settings_update_values()
+
+    document.getElementById("set_default_btn").onclick = function() {
+      document.value.game.set_default_settings()
+    }
+
+    document.getElementById("epsilon_decay").onchange = function() {
+      document.value.net_controller.epsilon_decay = this.value
+    }
+    document.getElementById("gamma").onchange = function() {
+      document.value.net_controller.gamma = this.value
+    }
+    document.getElementById("replay_buffer_size").onchange = function() {
+      document.value.net_controller.change_buffer_size(this.value)
+    }
+    document.getElementById("batch_size").onchange = function() {
+      document.value.net_controller.batch_size = this.value
+    }
+    document.getElementById("double_dqn").onchange = function() {
+      document.value.net_controller.double_dqn = this.checked
+    }
+    document.getElementById("target_net_timer").onchange = function() {
+      document.value.net_controller.target_update_time = this.value
+    }
+
+    document.getElementById("episode_limit").onchange = function() {
+      document.value.game.max_steps = this.value
+    }
+    document.getElementById("friction").onchange = function() {
+      document.value.game.world.friction = this.value
+    }
+    document.getElementById("lap_length").onchange = function() {
+      document.value.game.world.lap_length = this.value
+      document.value.game.world.set_default_map()
+    }
+    document.getElementById("load_best_btn").onclick = function() {
+      document.value.game.load_best()
+    }
+
+    document.getElementById("force_forward").onchange = function() {
+      document.value.game.force_forward = this.value
+    }
+    document.getElementById("force_forward_player").onchange = function() {
+      document.value.game.force_forward_player = this.checked
+    }
+    document.getElementById("forward_bias").onchange = function() {
+      document.value.game.forward_bias = this.value
+    }
+    document.getElementById("target_timeout").onchange = function() {
+      document.value.game.no_target_time = this.value
+    }
+    document.getElementById("auto_set_best").onchange = function() {
+      document.value.game.auto_set_best = this.value
+    }
+    document.getElementById("auto_adjust_eta").onchange = function() {
+      document.value.game.auto_adjust_eta = this.value
+    }
+    document.getElementById("auto_adjust_epsilon").onchange = function() {
+      document.value.game.auto_adjust_epsilon = this.value
+    }
+    document.getElementById("printing").onchange = function() {
+      document.value.game.printing = this.checked
+    }
+
+  }
+
+  settings_update_values() {
+    document.getElementById("epsilon_decay").value = document.value.net_controller.epsilon_decay
+    document.getElementById("gamma").value = document.value.net_controller.gamma
+    document.getElementById("replay_buffer_size").value = document.value.net_controller.max_memory
+    document.getElementById("batch_size").value = document.value.net_controller.batch_size
+    document.getElementById("double_dqn").checked = document.value.net_controller.double_dqn
+    document.getElementById("target_net_timer").value = document.value.net_controller.target_update_time
+
+    document.getElementById("episode_limit").value = document.value.game.max_steps
+    document.getElementById("friction").value = document.value.game.world.friction
+    document.getElementById("lap_length").value = document.value.game.world.lap_length
+
+    document.getElementById("force_forward").value = document.value.game.force_forward
+    document.getElementById("force_forward_player").checked = document.value.game.force_forward_player
+    document.getElementById("forward_bias").value = document.value.game.forward_bias
+    document.getElementById("target_timeout").value = document.value.game.no_target_time
+    document.getElementById("auto_set_best").value = document.value.game.auto_set_best
+    document.getElementById("auto_adjust_eta").value = document.value.game.auto_adjust_eta
+    document.getElementById("auto_adjust_epsilon").value = document.value.game.auto_adjust_epsilon
+    document.getElementById("printing").checked = document.value.game.printing
   }
 
   toggle_draw(turn_on) {

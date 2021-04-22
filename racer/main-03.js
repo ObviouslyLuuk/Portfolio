@@ -74,12 +74,12 @@ window.addEventListener("load", function(event) {
           if (stagnation) { console.log(`stagnated: ${stagnation} episodes`) }
         }
 
-        if (stagnation >= game.auto_eta_adjust && netController.eta < netController.eta_begin*.5) {
+        if (stagnation >= game.auto_adjust_eta && netController.eta < netController.eta_begin*.5) {
           netController.eta = netController.eta_begin*.5
           if (game.printing) console.log(`stagnation: learning rate ajusted; eta = ${netController.eta}`)
         }
 
-        if (stagnation >= game.auto_epsilon_adjust && netController.epsilon < .3) {
+        if (stagnation >= game.auto_adjust_epsilon && netController.epsilon < .3) {
           netController.epsilon += .03
           if (game.printing) console.log(`stagnation: epsilon increased; epsilon+=.03`)
         }
@@ -132,7 +132,7 @@ window.addEventListener("load", function(event) {
         }      
       }
 
-      if (game.auto_ajust_eta) {
+      if (game.auto_adjust_eta) {
         // Make the learning rate more precise when it's completing laps
         if (lap == 2) {
           netController.eta = netController.eta_begin/10
@@ -281,6 +281,7 @@ window.addEventListener("load", function(event) {
   resize();
 
   controller.init_buttons(game)
+  controller.init_settings()
   controller.init_draw()
   display.graph = display.initGraph()
   fill_replay_memory()

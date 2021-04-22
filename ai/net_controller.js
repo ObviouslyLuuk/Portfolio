@@ -64,6 +64,8 @@ window.NetController = class NetController {
     }
 
     update_target_network() {
+        if (!this.double_dqn) return
+
         // Only once every so often
         if (this.target_update_timer == 0) {
             for (let l = 1; l < this.target_network.layers.length; l++) {
@@ -266,7 +268,7 @@ window.NetController = class NetController {
 
     set_params(layer_design, params) {
         if (!layer_design || !params || layer_design.length < 1 || params.length < 1) {
-            console.log("no best parameters set for this track yet")
+            console.log("invalid parameter file, compare with a new saved one to check")
             return false
         }
         let ld = this.get_layer_design()
@@ -296,6 +298,13 @@ window.NetController = class NetController {
 
         console.log("parameters copied.")
         return true
+    }
+
+    change_buffer_size(new_size) {
+        if (new_size < this.replay_memory.length) {
+            this.replay_memory.splice(0, this.replay_memory.length - new_size)
+        }
+        this.max_memory = new_size
     }
 
     reset() {
