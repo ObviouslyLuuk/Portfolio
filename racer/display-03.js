@@ -125,19 +125,138 @@ class Display {
     let settings = `
     <div id="info_div" data-simplebar style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;padding: 30px; display:none;">
       <a id="close_info_btn" class="btn" style="position: absolute;right: 5px;top: 0px;">x</a>
-      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
-        <h2 style="justify-self: center;">Settings</h2>
-        <div><input type="checkbox" id="1"> <label for="1">Option1</label></div>
-      </div>
-      <br>
+
       <h2>Info</h2>
       <p>${info}</p>
-       
+      <br>
+
+      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+
+        <h2 style="justify-self: center;">Settings</h2>
+
+        <h4>Basic Hyperparameters</h4>
+        <div class="settings_div">
+          <div>
+            <input id="epsilon_decay" style="width:50px"> 
+            <label for="epsilon_decay">Epsilon Decay</label>
+            <p class="settings_expl">This is the factor with which the epsilon value is multiplied each episode, to gradually decrease randomness.</p>
+          </div>
+          <div>
+            <input id="gamma" style="width:50px"> 
+            <label for="gamma">Gamma</label>
+            <p class="settings_expl">This is the discount factor of the estimated future reward when calculating the error of the network.</p>
+          </div>
+          <div>
+            <input id="replay_buffer_size" style="width:50px"> 
+            <label for="replay_buffer_size">Memory Replay Buffer Size</label>
+            <p class="settings_expl">The amount of experiences (combination of action, state, next state and reward) that can be saved at one time. When this is full a random experience gets replaced with each timestep.</p>
+          </div>
+          <div>
+            <input id="batch_size" style="width:50px"> 
+            <label for="batch_size">Batch Size</label>
+            <p class="settings_expl">The amount of experiences that are used in Stochastic Gradient Descent each timestep.</p>
+          </div>
+          <div>
+            <input id="double_dqn" type="checkbox"> 
+            <label for="double_dqn">Double DQN</label>
+            <p class="settings_expl">Enables the target network. If set to false the policy network serves as its own judge, which can lead to instability.</p>
+          </div>
+          <div>
+            <input id="target_net_timer" style="width:50px"> 
+            <label for="target_net_timer">Target Net Update Timer</label>
+            <p class="settings_expl">The timesteps to pass before the target network is updated to the learned parameters of the policy network.</p>
+          </div>
+        </div>
+        <br>
+        <h4>Environment</h4>
+        <div class="settings_div">
+          <div>
+            <input id="episode_limit" style="width:50px"> 
+            <label for="episode_limit">Episode Limit</label>
+            <p class="settings_expl">The maximum number of timesteps in an episode. Infinity is fine (turned off) but if you want more shorter episodes set it to around 50000</p>
+          </div>
+          <div>
+            <input id="friction" style="width:50px"> 
+            <label for="friction">Friction</label>
+            <p class="settings_expl">The level of friction on the track. Reasonable values are 0.90-0.95 with 0.95 being very slippery</p>
+          </div>
+          <div>
+            <input id="lap_length" style="width:50px"> 
+            <label for="lap_length">Lap Length</label>
+            <p class="settings_expl">Only applies to the default track. Determines how many segments the track consists of. Lower values make for lower CPU load, higher values make the corners smoother and a greater number of targets of course.</p>
+          </div>
+          <div>
+            <button id="load_best_btn" class="btn">Load Best Parameters</button>
+            <p class="settings_expl">Loads the best parameters I've trained so far</p>
+          </div>
+        </div>
+        <br>
+        <h4>Advanced Settings / Heuristics</h4>
+        <div class="settings_div">
+          <div>
+            <input id="force_forward" style="width:50px"> 
+            <label for="force_forward">Force Forward</label>
+            <p class="settings_expl">Makes the car move forward with this portion of the normal speed at every timestep. Max speed is kept the same.</p>
+          </div>
+          <div>
+            <input id="force_forward_player" type="checkbox"> 
+            <label for="force_forward_player">Force Forward Player</label>
+            <p class="settings_expl">If set to true this also applies the 'force forward' setting to the player driving.</p>
+          </div>
+          <div>
+            <input id="forward_bias" style="width:50px"> 
+            <label for="forward_bias">Forward Bias</label>
+            <p class="settings_expl">Adds this to the score whenever the car goes forward to encourage it. 0.5 is already high for this</p>
+          </div>
+          <div>
+            <input id="target_timeout" style="width:50px"> 
+            <label for="target_timeout">Target Timeout</label>
+            <p class="settings_expl">Ends the episode if the car doesn't hit a target for this number of timesteps. Infinity is fine (turned off) but around 150 is a good value if you're impatient</p>
+          </div>          			
+          <div>
+            <input id="auto_set_best" style="width:50px"> 
+            <label for="auto_set_best">Automatic Reset to Best</label>
+            <p class="settings_expl">Takes the average score of this amount of recent episodes. If that average is significantly lower than the high score it resets to the best parameters. Infinity turns it off</p>
+          </div>
+          <div>
+            <input id="auto_adjust_eta" style="width:50px"> 
+            <label for="auto_adjust_eta">Automatic Eta Adjustment</label>
+            <p class="settings_expl">Decreases the learning rate when performing well and increases when it's not. This integer dictates how many episodes can go by without updating</p>
+          </div>
+          <div>
+            <input id="auto_adjust_epsilon" style="width:50px"> 
+            <label for="auto_adjust_epsilon">Automatic Epsilon Adjustment</label>
+            <p class="settings_expl">Increases the randomness when stagnating. This integer dictates how many episodes can go by without updating</p>
+          </div>
+          <div>
+            <input id="printing" type="checkbox"> 
+            <label for="printing">Printing</label>
+            <p class="settings_expl">If set to true this prints some messages in the console when updates happen.</p>
+          </div>
+        </div>
+      </div>
     </div>
+    `
+
+    let style = `
+    <style>
+    .settings_expl {
+      font-size: 12px;
+      color: darkgrey;
+    }
+    h4 {
+      border-bottom: solid rgb(${COOL_BLUE});
+    }
+    .settings_div {
+      display:grid;
+      grid-template-columns:repeat(2,50%);
+    }
+    </style>
     `
 
     document.body.insertAdjacentHTML('beforeend', innerHTML)
     document.body.insertAdjacentHTML('beforeend', settings)
+    document.body.insertAdjacentHTML('beforeend', style)
   }
   
   updateStats(game, net_controller) {

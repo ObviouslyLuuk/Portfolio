@@ -67,29 +67,35 @@ window.addEventListener("load", function(event) {
 
       // If there's no improvement, give it a little push
       if (netController.eta != 0) {
-        console.log(game.episode_nr)
         let stagnation = check_stagnation(game.scores, 10)
-        if (stagnation) {
-          console.log(`stagnated: ${stagnation} episodes`)
+
+        if (game.printing) {
+          console.log("Episode: "+game.episode_nr)
+          if (stagnation) { console.log(`stagnated: ${stagnation} episodes`) }
         }
-        if (stagnation >= 5 && netController.eta < netController.eta_begin*.5) {
+
+        if (stagnation >= game.auto_eta_adjust && netController.eta < netController.eta_begin*.5) {
           netController.eta = netController.eta_begin*.5
+          if (game.printing) console.log(`stagnation: learning rate ajusted; eta = ${netController.eta}`)
         }
-        if (stagnation >= 2 && netController.epsilon < .3) {
+
+        if (stagnation >= game.auto_epsilon_adjust && netController.epsilon < .3) {
           netController.epsilon += .03
+          if (game.printing) console.log(`stagnation: epsilon increased; epsilon+=.03`)
         }
-        let avg = mean(game.scores, 0, 30)
-        if (avg < game.world.map.targets.length*.5  && 
-            game.best_lap_time != Infinity          &&
-            game.episodes_since_best > 15           &&
-            game.last_set_to_best > 15) { // If the 30avg fell below half a lap
-          // Do this after the high score hasn't improved for a while?
-          // Or if it's just consistently worse than the high score or even highest average score?
-          console.log("reset to best. (lack of improvement)")
-          game.set_best()
-          netController.epsilon = 0.01
-          netController.eta = netController.eta_begin*.5
-        }        
+
+        if (game.episodes_since_best > game.auto_set_best && game.last_set_to_best > game.auto_set_best) {
+          let avg = mean(game.scores, 0, game.auto_set_best)
+          if (avg < game.world.map.targets.length*.5 && game.best_lap_time != Infinity) { // If the recent avg fell below half a lap
+            // Maybe do this after the high score hasn't improved for a while?
+            // Or if it's just consistently worse than the high score or even highest average score?
+            game.set_best()
+            netController.epsilon = 0.01
+            netController.eta = netController.eta_begin*.5
+            if (game.printing) console.log("avg fell: reset to best parameters. epsilon=.01, eta="+netController.eta)
+          }                
+        }
+
       }
     }
 
@@ -114,18 +120,31 @@ window.addEventListener("load", function(event) {
       last_score_increase++
     }
 
-    if (netController.eta != 0) {
-      if (game.world.lap_steps == 1) {
-        let lap = game.world.lap
-        if (lap > 2 && netController.epsilon > netController.epsilon_end) { // Do this for every completed lap past two
+    // Auto adjust eta and epsilon
+    if (netController.eta != 0 && game.world.lap_steps == 1) {
+      let lap = game.world.lap
+
+      if (game.auto_adjust_epsilon) {
+        // Decrease randomness for every completed lap past two
+        if (lap > 2 && netController.epsilon > netController.epsilon_end) {
           netController.epsilon*=.95
-        } else if (lap == 2) {
+          if (game.printing) console.log("lap > 2: randomness decreased; epsilon *=.95")
+        }      
+      }
+
+      if (game.auto_ajust_eta) {
+        // Make the learning rate more precise when it's completing laps
+        if (lap == 2) {
           netController.eta = netController.eta_begin/10
+          if (game.printing) console.log("lap == 2: learning rate adjusted; eta = " + netController.eta)
         } else if (lap == 1) {
           netController.eta = netController.eta_begin/2
-        }
+          if (game.printing) console.log("lap == 1: learning rate adjusted; eta = " + netController.eta)
+        }        
       }
-    }
+
+    }    
+
     timesteps++
   }
 

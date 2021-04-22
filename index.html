@@ -62,16 +62,16 @@
 
     }
 
-    let script = document.createElement("script");
-    script.setAttribute("type", "module");
-    script.setAttribute("src", "ai/net_controller.js");
-    document.head.appendChild(script);   
-    
     if (part == "digits") {
-      let script2 = document.createElement("script");
-      script2.setAttribute("type", "module");
-      script2.setAttribute("src", "ai/neural_net_module.js");
-      document.head.appendChild(script2);       
+      let script = document.createElement("script");
+      script.setAttribute("type", "module");
+      script.setAttribute("src", "ai/neural_net_module.js");
+      document.head.appendChild(script);       
+    } else {
+      let script = document.createElement("script");
+      script.setAttribute("type", "module");
+      script.setAttribute("src", "ai/net_controller.js");
+      document.head.appendChild(script);   
     }
 
     let menu      = document.getElementById("menu");

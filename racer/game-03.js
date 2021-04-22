@@ -3,16 +3,21 @@ class Game {
     this.world = new Game.World(this)
     this.tracks = TRACKS
 
+    this.state = 'train' // can be train, draw, drive
+
     // Settings
+    this.printing = true
     this.max_steps = Infinity
-    this.only_forward_targets = false
     this.score_at_wall = -10
     this.score_at_target = 1
     this.no_target_time = 150 // Infinity or 150 for example
+    this.only_forward_targets = false
     this.force_forward = .3
+    this.force_forward_player = true
     this.forward_bias = 0
-
-    this.state = 'train' // can be train, draw, drive
+    this.auto_set_best = 15
+    this.auto_ajust_eta = 5
+    this.auto_ajust_epsilon = 2
 
     // Trackers
     this.episode_nr = 0
@@ -700,7 +705,7 @@ Game.World.Player = class {
 
   update() {
 
-    if (document.value.game.force_forward) this.moveForward(document.value.game.force_forward)
+    if (document.value.game.force_forward_player && document.value.game.force_forward) this.moveForward(document.value.game.force_forward)
 
     this.x += this.velocity.x;
     this.y += this.velocity.y;
