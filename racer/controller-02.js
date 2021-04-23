@@ -140,7 +140,7 @@ class Controller {
       document.value.game.world.set_default_map()
     }
 
-    for (let i of [1,2,3]) {
+    for (let i of [1,2,3,4]) {
       document.getElementById(`track${i}_btn`).onclick = function() {
         let track = JSON.parse(document.value.game.tracks[i-1])
         document.value.game.world.set_map(track)

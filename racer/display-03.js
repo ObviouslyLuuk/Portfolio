@@ -96,6 +96,7 @@ class Display {
                 <button id="track1_btn" class="btn" style="border-radius:0px;">Horseshoe</button>
                 <button id="track2_btn" class="btn" style="border-radius:0px;">Boomerang</button>
                 <button id="track3_btn" class="btn" style="border-radius:0px;">Thin</button>
+                <button id="track4_btn" class="btn" style="border-radius:0px;">Wave</button>
               </div>
             </div>
           </div>

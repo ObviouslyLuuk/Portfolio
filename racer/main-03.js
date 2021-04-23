@@ -79,7 +79,7 @@ window.addEventListener("load", function(event) {
           if (game.printing) console.log(`stagnation: learning rate ajusted; eta = ${netController.eta}`)
         }
 
-        if (stagnation >= game.auto_adjust_epsilon && netController.epsilon < .8) {
+        if (stagnation >= game.auto_adjust_epsilon && netController.epsilon < .5) {
           netController.epsilon += .05
           if (game.printing) console.log(`stagnation: epsilon increased; epsilon+=.03`)
         }
