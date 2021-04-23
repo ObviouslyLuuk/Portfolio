@@ -46,23 +46,6 @@ window.NetController = class NetController {
         this.total_neurons = this.get_total_neurons()
     }
 
-    get_total_neurons() {
-        let total_neurons = 0
-        for (let layer of this.policy_network.layers) {
-            total_neurons += layer.size
-        }
-        return total_neurons
-    }
-
-    get_total_parameters() {
-        let total_parameters = 0
-        for (let l = 1; l < this.policy_network.depth; l++) {
-            let layer = this.policy_network.layers[l]
-            total_parameters += layer.biases.length + layer.size * this.policy_network.layers[l-1].size
-        }
-        return total_parameters
-    }
-
     update_target_network() {
         if (!this.double_dqn) return
 
@@ -193,6 +176,40 @@ window.NetController = class NetController {
         this.q_log.length = 0
     }
 
+    reset() {
+        console.log("reset parameters")
+
+        // Re init policy network
+        for (let l = 1; l < this.policy_network.depth; l++) {
+            let layer = this.policy_network.layers[l]
+            layer.reset()
+        }
+        this.update_target_network()
+
+        this.current_memory = {}
+        this.epsilon = this.epsilon_begin
+        this.target_update_timer = 0
+        this.q_log = {sum:0,length:0}
+    }    
+
+    // Other functions
+    get_total_neurons() {
+        let total_neurons = 0
+        for (let layer of this.policy_network.layers) {
+            total_neurons += layer.size
+        }
+        return total_neurons
+    }
+
+    get_total_parameters() {
+        let total_parameters = 0
+        for (let l = 1; l < this.policy_network.depth; l++) {
+            let layer = this.policy_network.layers[l]
+            total_parameters += layer.biases.length + layer.size * this.policy_network.layers[l-1].size
+        }
+        return total_parameters
+    }
+
     get_layer_design() {
         let layer_design = []
 
@@ -307,19 +324,4 @@ window.NetController = class NetController {
         this.max_memory = new_size
     }
 
-    reset() {
-        console.log("reset parameters")
-
-        // Re init policy network
-        for (let l = 1; l < this.policy_network.depth; l++) {
-            let layer = this.policy_network.layers[l]
-            layer.reset()
-        }
-        this.update_target_network()
-
-        this.current_memory = {}
-        this.epsilon = this.epsilon_begin
-        this.target_update_timer = 0
-        this.q_log = {sum:0,length:0}
-    }
 }

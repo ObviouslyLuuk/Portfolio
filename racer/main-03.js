@@ -1,5 +1,3 @@
-// Frank Poth 03/23/2017
-
 window.addEventListener("load", function(event) {
 
   "use strict";
@@ -27,8 +25,7 @@ window.addEventListener("load", function(event) {
     display.drawActivations(
       activations,
       ["Left", "Right", "Forward"],
-      // ["Left", "Right", "Forward", "Nothing"],
-      )
+    )
 
     display.drawMap(game.world.map)
     display.drawPlayer(game.world.player, game.world.player.color)
@@ -228,21 +225,12 @@ window.addEventListener("load", function(event) {
 
   game.world.player.set_sensors(sensors)
 
-  var actions = [
-    // ["moveForward", "turnLeft"],
-    // ["moveForward", "turnRight"],      
+  var actions = [    
     ["turnLeft"],
     ["turnRight"],
     ["moveForward"],
-    // ["moveBackward"],
-    // [],
   ]
 
-  // friction: .93, lap length: 40, walldeath: -10
-  // For w/out backward, in: [vel, front, side, diag]       arg: {eta: .01,   batch_size: 1000, max_mem: 50000, ep_decay: 0}    Episode65
-  // For w/    backward, in: [vel, front, side, diag, back] arg: {eta: .001,  batch_size: 1000, max_mem: 15000, ep_decay: .995} Episode800
-  // walldeath: 0
-  // For w/    backward, in: [vel, front, side, diag, back] arg: {eta: .001,  batch_size: 1000, max_mem: 50000, ep_decay: .995} Episode716
   var netController = new NetController(
     [{x: get_net_input(), y: actions}],                   // io shape
     [{type: "Dense", size:16}], // layers
@@ -287,7 +275,6 @@ window.addEventListener("load", function(event) {
   display.graph = display.initGraph()
   fill_replay_memory()
 
-  var timesteps = 0
   var score = 0 // For tracking score difference
   var last_score_increase = 0 // For tracking whether the car is still moving forward
   var activations = null

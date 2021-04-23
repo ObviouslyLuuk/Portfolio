@@ -1,4 +1,3 @@
-const COOL_GREEN = '99, 255, 132'
 const COOL_BLUE = '0, 115, 255'
 
 class Display {
