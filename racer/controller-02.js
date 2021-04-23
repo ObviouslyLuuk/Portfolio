@@ -191,7 +191,7 @@ class Controller {
       document.value.net_controller.gamma = this.value
     }
     document.getElementById("replay_buffer_size").onchange = function() {
-      document.value.net_controller.change_buffer_size(this.value)
+      document.value.net_controller.change_buffer_size(parseInt(this.value))
     }
     document.getElementById("batch_size").onchange = function() {
       document.value.net_controller.batch_size = this.value
@@ -206,6 +206,12 @@ class Controller {
     document.getElementById("episode_limit").onchange = function() {
       document.value.game.max_steps = this.value
     }
+    document.getElementById("target_score").onchange = function() {
+      document.value.game.score_at_target = parseInt(this.value)
+    }
+    document.getElementById("collision_score").onchange = function() {
+      document.value.game.score_at_wall = parseInt(this.value)
+    }        
     document.getElementById("friction").onchange = function() {
       document.value.game.world.friction = this.value
     }
@@ -256,6 +262,8 @@ class Controller {
     document.getElementById("target_net_timer").value = document.value.net_controller.target_update_time
 
     document.getElementById("episode_limit").value = document.value.game.max_steps
+    document.getElementById("target_score").value = document.value.game.score_at_target
+    document.getElementById("collision_score").value = document.value.game.score_at_wall
     document.getElementById("friction").value = document.value.game.world.friction
     document.getElementById("lap_length").value = document.value.game.world.lap_length
 

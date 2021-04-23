@@ -174,12 +174,22 @@ class Display {
           <div>
             <input id="episode_limit"> 
             <label for="episode_limit">Episode Limit</label>
-            <p class="settings_expl">The maximum number of timesteps in an episode. Infinity is fine (turned off) but if you want more shorter episodes set it to around 50000</p>
+            <p class="settings_expl">The maximum number of timesteps in an episode. Infinity is fine (turned off) but if you want more and shorter episodes set it to around 2000</p>
           </div>
+          <div>
+            <input id="target_score"> 
+            <label for="target_score">Target Score</label>
+            <p class="settings_expl">The score that is added when reaching a target (the blue lines).</p>
+          </div>
+          <div>
+            <input id="collision_score"> 
+            <label for="collision_score">Collision Score</label>
+            <p class="settings_expl">The score that is added when hitting a wall (so it should be negative).</p>
+          </div>                    
           <div>
             <input id="friction"> 
             <label for="friction">Friction</label>
-            <p class="settings_expl">The level of friction on the track. Reasonable values are 0.90-0.95 with 0.95 being very slippery</p>
+            <p class="settings_expl">The fraction of speed that is maintained (so like inverted friction really). Reasonable values are 0.90-0.95 with 0.95 being very slippery</p>
           </div>
           <div>
             <input id="lap_length"> 
@@ -274,10 +284,11 @@ class Display {
     document.getElementById("episode_nr").innerHTML = game.episode_nr
     document.getElementById("best_score").innerHTML = game.best_score
     if (game.avg_scores[0]) {
-      document.getElementById("avg_score").innerHTML = game.avg_scores[0].toFixed(2) }
-    document.getElementById("current_score").innerHTML = `Score: ${game.world.score.toFixed(1)}`
+      try { document.getElementById("avg_score").innerHTML = game.avg_scores[0].toFixed(2) }              catch(err) {console.log(`${err}: ${game.avg_scores[0]}`)}
+    }
+    try { document.getElementById("current_score").innerHTML = `Score: ${game.world.score.toFixed(1)}` }  catch(err) {console.log(`${err}: ${game.world.score}`)}
     document.getElementById("episodes_since_best").innerHTML = game.episodes_since_best
-    document.getElementById("epsilon").value = net_controller.epsilon.toFixed(3)
+    try { document.getElementById("epsilon").value = net_controller.epsilon.toFixed(3) }                  catch(err) {console.log(`${err}: ${net_controller.epsilon}`)}
     document.getElementById("eta").value = net_controller.eta
     document.getElementById("total_parameters").innerHTML = net_controller.total_parameters
     document.getElementById("total_neurons").innerHTML = net_controller.total_neurons
