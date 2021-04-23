@@ -217,6 +217,12 @@ class Controller {
       document.value.game.load_best()
     }
 
+    document.getElementById("invert_speed").onchange = function() {
+      document.value.game.invert_speed = this.checked
+    }
+    document.getElementById("target_timeout").onchange = function() {
+      document.value.game.no_target_time = this.value
+    }    
     document.getElementById("force_forward").onchange = function() {
       document.value.game.force_forward = this.value
     }
@@ -225,9 +231,6 @@ class Controller {
     }
     document.getElementById("forward_bias").onchange = function() {
       document.value.game.forward_bias = this.value
-    }
-    document.getElementById("target_timeout").onchange = function() {
-      document.value.game.no_target_time = this.value
     }
     document.getElementById("auto_set_best").onchange = function() {
       document.value.game.auto_set_best = this.value
@@ -256,10 +259,11 @@ class Controller {
     document.getElementById("friction").value = document.value.game.world.friction
     document.getElementById("lap_length").value = document.value.game.world.lap_length
 
+    document.getElementById("invert_speed").checked = document.value.game.invert_speed
+    document.getElementById("target_timeout").value = document.value.game.no_target_time
     document.getElementById("force_forward").value = document.value.game.force_forward
     document.getElementById("force_forward_player").checked = document.value.game.force_forward_player
     document.getElementById("forward_bias").value = document.value.game.forward_bias
-    document.getElementById("target_timeout").value = document.value.game.no_target_time
     document.getElementById("auto_set_best").value = document.value.game.auto_set_best
     document.getElementById("auto_adjust_eta").value = document.value.game.auto_adjust_eta
     document.getElementById("auto_adjust_epsilon").value = document.value.game.auto_adjust_epsilon

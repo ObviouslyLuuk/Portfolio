@@ -31,7 +31,7 @@ window.addEventListener("load", function(event) {
       )
 
     display.drawMap(game.world.map)
-    display.drawPlayer(game.world.player, game.world.player.color1, game.world.player.color2)
+    display.drawPlayer(game.world.player, game.world.player.color)
 
     display.render()
  
@@ -58,7 +58,7 @@ window.addEventListener("load", function(event) {
   function train_update() {
     score = game.world.score
 
-    if (game.world.player.collided || last_score_increase > game.no_target_time || timesteps > game.max_steps) {
+    if (game.world.player.collided || last_score_increase > game.no_target_time || game.ep_timesteps > game.max_steps) {
       last_score_increase = 0
 
       netController.update()
@@ -79,8 +79,8 @@ window.addEventListener("load", function(event) {
           if (game.printing) console.log(`stagnation: learning rate ajusted; eta = ${netController.eta}`)
         }
 
-        if (stagnation >= game.auto_adjust_epsilon && netController.epsilon < .3) {
-          netController.epsilon += .03
+        if (stagnation >= game.auto_adjust_epsilon && netController.epsilon < .8) {
+          netController.epsilon += .05
           if (game.printing) console.log(`stagnation: epsilon increased; epsilon+=.03`)
         }
 
@@ -144,8 +144,6 @@ window.addEventListener("load", function(event) {
       }
 
     }    
-
-    timesteps++
   }
 
   // Manual control
@@ -194,7 +192,10 @@ window.addEventListener("load", function(event) {
   }
 
   function get_net_input() {
-    let net_input = [Math.sqrt(Math.pow(game.world.player.velocity.x, 2) + Math.pow(game.world.player.velocity.y, 2))/50]
+    let speed = Math.sqrt(Math.pow(game.world.player.velocity.x, 2) + Math.pow(game.world.player.velocity.y, 2))
+    let norm_speed = speed/15
+    if (game.invert_speed) norm_speed = 1 - norm_speed
+    let net_input = [norm_speed]
 
     for (let sensor of sensors) {
       for (let dir of sensor.dirs) {
@@ -248,7 +249,7 @@ window.addEventListener("load", function(event) {
     .01,                                                 // eta
     .99, // gamma
     32,                                                   // batch_size 32
-    100000,                                                // max_memory
+    30000,                                                // max_memory
     1,                                                    // epsilon
     .01,                                                   // epsilon_end
     .95,                                                // epsilon_decay

@@ -194,6 +194,16 @@ class Display {
         <h4>Advanced Settings / Heuristics</h4>
         <div class="settings_div">
           <div>
+            <input id="invert_speed" type="checkbox"> 
+            <label for="invert_speed">Invert Speed Input</label>
+            <p class="settings_expl">Changes the input for speed into (1 - speed) so it gets a stronger influence as the car slows down. This helps prevent the car from slowing to a halt in corners.</p>
+          </div>        
+          <div>
+            <input id="target_timeout"> 
+            <label for="target_timeout">Target Timeout</label>
+            <p class="settings_expl">Ends the episode if the car doesn't hit a target for this number of timesteps. Infinity is fine (turned off) but around 150 is a good value if you're impatient</p>
+          </div>          
+          <div>
             <input id="force_forward"> 
             <label for="force_forward">Force Forward</label>
             <p class="settings_expl">Makes the car move forward with this portion of the normal speed at every timestep. Max speed is kept the same.</p>
@@ -202,11 +212,6 @@ class Display {
             <input id="force_forward_player" type="checkbox"> 
             <label for="force_forward_player">Force Forward Player</label>
             <p class="settings_expl">If set to true this also applies the 'force forward' setting to the player driving.</p>
-          </div>
-          <div>
-            <input id="target_timeout"> 
-            <label for="target_timeout">Target Timeout</label>
-            <p class="settings_expl">Ends the episode if the car doesn't hit a target for this number of timesteps. Infinity is fine (turned off) but around 150 is a good value if you're impatient</p>
           </div>
           <div>
             <input id="forward_bias"> 
@@ -532,7 +537,7 @@ class Display {
 
   }
 
-  drawPlayer(rectangle, color1, color2, draw_sensors=true, draw_borders=false) {
+  drawPlayer(rectangle, color, draw_sensors=true, draw_borders=false) {
 
     this.buffer.car.clearRect(0,0,2000,2000)
     this.context.car.clearRect(0,0,10000,10000)
@@ -564,7 +569,7 @@ class Display {
       }
     }
 
-    this.buffer.car.strokeStyle = color1
+    this.buffer.car.strokeStyle = color
 
     // Draw borders of the car
     if (draw_borders) {
@@ -578,7 +583,7 @@ class Display {
       }    
     }
 
-    this.buffer.car.fillStyle = color1;
+    this.buffer.car.fillStyle = color;
 
     // Draw filled shape of the car
     let cx = rectangle.getCx()
