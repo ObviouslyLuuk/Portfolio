@@ -67,7 +67,10 @@ class Display {
         </div>
         <div id="content_top_right_div">
           <div id="content_top_right_canvas_div" style="position: relative; margin-top:5px">
-            <div id="current_score" style="position:absolute; padding-inline: 5px;">Score: 0</div>
+            <div style="position:absolute; padding-inline: 5px;">
+              <div id="current_score">Score: 0</div>
+              <div id="time_left" style="display:none;">Time: 0</div>            
+            </div>
             <canvas id="map_canvas" style="width:100%; position: absolute; border: 2px solid grey; border-radius: 5px; image-rendering: auto;"></canvas>
             <canvas id="car_canvas" style="width:100%; image-rendering: auto;"></canvas>
           </div>
@@ -291,6 +294,16 @@ class Display {
     document.getElementById("eta").value = net_controller.eta
     document.getElementById("total_parameters").innerHTML = net_controller.total_parameters
     document.getElementById("total_neurons").innerHTML = net_controller.total_neurons
+
+    let time_div = document.getElementById("time_left")
+    if (game.max_steps != Infinity) {
+      time_div.style.display = 'block'
+      let time_left = game.max_steps - game.ep_timesteps
+      time_div.innerHTML = `Time: ${time_left/100}`
+    } else {
+      time_div.style.display = 'none'
+    }
+
   }
 
   initGraph() {
