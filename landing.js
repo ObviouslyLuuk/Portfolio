@@ -18,13 +18,14 @@ window.addEventListener('load', function() {
     "use strict";
 
     let innerHTML = `
-    <div id="wrapper" style="display: grid; grid-template-columns: repeat(2, 50%); column-gap:10px;row-gap:10px;">
+    <div id="wrapper" style="display: grid; grid-template-columns: repeat(2, 50%); column-gap: 10px; row-gap: 10px; align-items: center;">
 
         <div>
             <h1>Luuk's AI Projects</h1>
             <p>
                 Welcome to the landing page for my AI projects!
             </p>
+            <a href="https://www.github.com/obviouslyluuk/portfolio">GitHub</a>
         </div>
 
         <a href = "index.html?racer">
@@ -45,8 +46,6 @@ window.addEventListener('load', function() {
     let style = `
     <style>
     a {
-        width: 100%;
-        height: 100%;
         position: relative;
     }
     img {
@@ -55,9 +54,6 @@ window.addEventListener('load', function() {
         display: block;
         border: solid white 5px;
         border-radius: 15px;        
-    }
-    img:hover {
-        opacity: .2;
     }
     .project_name {
         position: absolute;
@@ -70,6 +66,9 @@ window.addEventListener('load', function() {
     }
     a:hover .project_name {
         display: grid;
+    }
+    a:hover img {
+        opacity: .2;
     }
     </style>
     `
