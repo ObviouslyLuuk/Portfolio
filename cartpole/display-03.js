@@ -260,6 +260,7 @@ class Display {
       options: {
           scales: {
             y: {
+              position: 'right',
               beginAtZero: true,
               grid: {
                 drawBorder: false,
@@ -273,7 +274,7 @@ class Display {
             // y1: {
             //   beginAtZero: true,
             //   max: 1,
-            //   position: 'right',
+            //   position: 'left',
             //   grid: {
             //     drawOnChartArea: false, // The second scale shouldn't have a grid
             //   }                  

@@ -39,7 +39,8 @@ class Controller {
       let params = document.value.net_controller.get_params()
       let layer_design = JSON.stringify(params.layer_design)
       let score = document.value.game.world.score
-      document.value.controller.download(params, `ai_racer_params_ld${layer_design}_s${score}`)
+      let episode_nr = document.value.game.episode_nr
+      document.value.controller.download(params, `ai_racer_params_ld${layer_design}_s${score}_e${episode_nr}`)
     }
     
     document.getElementById("load_btn").oninput = function(input_event) {

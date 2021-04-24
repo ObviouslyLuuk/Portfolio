@@ -1,5 +1,3 @@
-// Credit for the idea of the organization for this file, and the code for the engine, goes to Frank Poth 03/23/2017
-
 window.addEventListener("load", function(event) {
 
   "use strict";
@@ -10,10 +8,10 @@ window.addEventListener("load", function(event) {
 
   var resize = function(event) {
 
-    display.resize(document.getElementById("content_div").offsetWidth, document.getElementById("content_div").offsetHeight, 9/16);
-    display.render();
+    display.resize(document.getElementById("content_div").offsetWidth, document.getElementById("content_div").offsetHeight, 9/16)
+    display.render()
 
-  };
+  }
 
   var render = function() {
 
@@ -78,7 +76,7 @@ window.addEventListener("load", function(event) {
   var controller = new Controller()
   var engine     = new Engine(1000/25, render, update)
   var nn         = new NeuralNet(undefined, [{type:"Dense",size:16}])
-  var game       = new Game("epoch")
+  var game       = new Game()
 
   document.value = {
     game: game, 
@@ -88,8 +86,6 @@ window.addEventListener("load", function(event) {
     engine: engine,
   }
 
-  var step_example_res = {x: null, y: [0,0,0,0,0,0,0,0,0,0], activations: null, correct: null, label: null, prediction: null}
-
     ////////////////////
    //// INITIALIZE ////
   ////////////////////
@@ -97,7 +93,10 @@ window.addEventListener("load", function(event) {
   display.buffer.input.canvas.height = 28
   display.buffer.input.canvas.width  = 28
 
+  var step_example_res = {x: null, y: [0,0,0,0,0,0,0,0,0,0], activations: null, correct: null, label: null, prediction: null}
+
   resize()
+  game.load_best()
   controller.init_buttons(game)
   controller.init_draw(display.canvas.input)
   display.graph = display.initGraph()
@@ -106,4 +105,4 @@ window.addEventListener("load", function(event) {
 
   window.addEventListener("resize",  resize)
 
-});
+})

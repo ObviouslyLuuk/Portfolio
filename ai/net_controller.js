@@ -249,40 +249,6 @@ window.NetController = class NetController {
         }
     }
 
-    get_weights() {
-        let weight_layers = [[]]
-        for (let l = 1; l < this.policy_network.layers.length; l++) {
-            let layer = this.policy_network.layers[l]
-            let weights = [[]]
-
-            for (let n in layer.weights) {
-                let node = layer.weights[n]
-                weights.push([])
-                for (let prev_node of node) {
-                    weights[n].push(prev_node)
-                }
-            }
-            weight_layers.push(weights)
-        }
-
-        return weight_layers
-    }
-
-    get_activations() {
-        let activations = []
-        for (let l = 0; l < this.policy_network.layers.length; l++) {
-            let layer = this.policy_network.layers[l]
-            let as = []
-
-            for (let a of layer.activations) {
-                as.push(a)
-            }
-            activations.push(as)
-        }
-
-        return activations        
-    }
-
     set_params(layer_design, params) {
         if (!layer_design || !params || layer_design.length < 1 || params.length < 1) {
             console.log("invalid parameter file, compare with a new saved one to check")
@@ -315,6 +281,40 @@ window.NetController = class NetController {
 
         console.log("parameters copied.")
         return true
+    }
+
+    get_weights() {
+        let weight_layers = [[]]
+        for (let l = 1; l < this.policy_network.layers.length; l++) {
+            let layer = this.policy_network.layers[l]
+            let weights = [[]]
+
+            for (let n in layer.weights) {
+                let node = layer.weights[n]
+                weights.push([])
+                for (let prev_node of node) {
+                    weights[n].push(prev_node)
+                }
+            }
+            weight_layers.push(weights)
+        }
+
+        return weight_layers
+    }
+
+    get_activations() {
+        let activations = []
+        for (let l = 0; l < this.policy_network.layers.length; l++) {
+            let layer = this.policy_network.layers[l]
+            let as = []
+
+            for (let a of layer.activations) {
+                as.push(a)
+            }
+            activations.push(as)
+        }
+
+        return activations        
     }
 
     change_buffer_size(new_size) {

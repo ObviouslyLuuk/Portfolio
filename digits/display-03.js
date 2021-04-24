@@ -39,7 +39,7 @@ class Display {
 
     let innerHTML = `
     <div id="content_div" style="display: grid; align-items: center; justify-items: center; width:100%; height:100%; grid-template-rows: 40% 60%;">
-      <div id="content_top_div" style="display: grid; align-items: end; justify-items: center; grid-template-columns: 35% 30% 35%; width: 100%; height:100%;">
+      <div id="content_top_div" style="display: grid; align-items: end; justify-items: center; grid-template-columns: 35% 30% 35%; width: 100%; height:100%; column-gap:5px">
         <div id="content_top_left_div" style="width: 100%; height:100%">
           <canvas id="graph_canvas"></canvas>
         </div>
@@ -54,33 +54,31 @@ class Display {
             <button id="clear_btn" class="btn">Clear</button>
           </div>
         </div>
-        <div id="content_top_right_div">
-          <div id="content_top_right_main_div">
-            <table><tr>
-              <td><input id="epoch_btn" name="steps" type="radio">epoch</input></td>
-              <td id="epoch_nr"></td>
-            </tr><tr>
-              <td><input id="batch_btn" name="steps" type="radio">batch</input></td>
-              <td id="batch_nr"></td>
-            </tr><tr>
-              <td><input id="example_btn" name="steps" type="radio">example</input></td>
-              <td id="example_nr"></td>
-            </tr><tr>                        
-              <td>last score</td>
-              <td id="last_score"></td>
-            </tr><tr>
-              <td>best score</td>
-              <td id="best_score"></td>
-            </tr><tr>
-              <td>epochs since best cost (training)</td>
-              <td id="epochs_since_best"></td>
-            </tr><tr>
-              <td>total parameters</td>
-              <td id="total_parameters"></td>
-            </tr><tr>
-              <td>total neurons</td>
-              <td id="total_neurons"></td>                                                        
-            </tr></table>
+        <div id="content_top_right_div" style="width:75%;">
+          <div id="table_div" style="display: grid; grid-template-columns: auto auto;">
+            <div><input id="epoch_btn" name="steps" type="radio"> <label for="epoch_btn">epoch</label></div>
+            <div id="epoch_nr"></div>
+          
+            <div><input id="batch_btn" name="steps" type="radio"> <label for="batch_btn">batch</label></div>
+            <div id="batch_nr"></div>
+          
+            <div><input id="example_btn" name="steps" type="radio"> <label for="example_btn">example</label></div>
+            <div id="example_nr"></div>
+          
+            <div>last score</div>
+            <div id="last_score"></div>
+          
+            <div>best score</div>
+            <div id="best_score"></div>
+          
+            <div>epochs since best cost (training)</div>
+            <div id="epochs_since_best"></div>
+          
+            <div>total parameters</div>
+            <div id="total_parameters"></div>
+          
+            <div>total neurons</div>
+            <div id="total_neurons"></div>
           </div>
           <input id="speed_slider" type="range" min=0 max=10 value=5 style="width:100%;">
           <div id="content_top_right_bar_div" style="display: grid; grid-template-columns: 49% 49%; column-gap: 2%;">
@@ -140,6 +138,7 @@ class Display {
       options: {
           scales: {
               y: {
+                  position: 'right',
                   beginAtZero: true,
                   max: 1,
               }

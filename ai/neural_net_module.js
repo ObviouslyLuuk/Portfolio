@@ -69,23 +69,6 @@ window.NeuralNet = class NeuralNet {
         return layers
     }
 
-    get_total_neurons() {
-        let total_neurons = 0
-        for (let layer of this.layers) {
-            total_neurons += layer.size
-        }
-        return total_neurons
-    }
-
-    get_total_parameters() {
-        let total_parameters = 0
-        for (let l = 1; l < this.depth; l++) {
-            let layer = this.layers[l]
-            total_parameters += layer.biases.length + layer.size * this.layers[l-1].size
-        }
-        return total_parameters
-    }
-
     init_batches(batch_size=100) {
         // Divide data into batches
         shuffleArray(this.data)
@@ -103,18 +86,6 @@ window.NeuralNet = class NeuralNet {
         return batches
     }
 
-    test_example(input) {
-        this.layers[this.depth-1].feedforward(input, null)
-
-        // Gather activations
-        let activations = []
-        for (let layer of this.layers) {
-            activations.push(layer.activations)
-        }
-
-        return activations
-    }
-
     evaluate() {
         let score = 0
         let cost = 0
@@ -130,20 +101,6 @@ window.NeuralNet = class NeuralNet {
         this.test_costs.unshift(cost)
 
         if (score > this.best_test_score) this.best_test_score = score
-    }
-
-    get_weights() {
-        // Gather weights
-        let weights = [[]]
-        for (let l = 1; l < this.depth; l++) { // First layer doesn't have weights so we skip
-            let layer = this.layers[l]
-            weights.push([])
-            for (let node of layer.weights) {
-                weights[l].push([...node])
-            }
-        }
-        
-        return weights
     }
 
     reset() {
@@ -167,6 +124,122 @@ window.NeuralNet = class NeuralNet {
         // -----------------------------------------
 
         this.epoch.reset()
+    }
+
+    // Other functions
+    test_example(input) {
+        this.layers[this.depth-1].feedforward(input, null)
+
+        // Gather activations
+        let activations = []
+        for (let layer of this.layers) {
+            activations.push(layer.activations)
+        }
+
+        return activations
+    }
+
+    get_total_neurons() {
+        let total_neurons = 0
+        for (let layer of this.layers) {
+            total_neurons += layer.size
+        }
+        return total_neurons
+    }
+
+    get_total_parameters() {
+        let total_parameters = 0
+        for (let l = 1; l < this.depth; l++) {
+            let layer = this.layers[l]
+            total_parameters += layer.biases.length + layer.size * this.layers[l-1].size
+        }
+        return total_parameters
+    }
+    
+    get_weights() {
+        // Gather weights
+        let weights = [[]]
+        for (let l = 1; l < this.depth; l++) { // First layer doesn't have weights so we skip
+            let layer = this.layers[l]
+            weights.push([])
+            for (let node of layer.weights) {
+                weights[l].push([...node])
+            }
+        }
+        
+        return weights
+    }
+
+    get_layer_design() {
+        let layer_design = []
+
+        for (let layer of this.layers) {
+            layer_design.push(layer.size)
+        }
+        return layer_design
+    }
+
+    get_params() {
+        let params = [{}]
+        for (let l = 1; l < this.layers.length; l++) {
+            let layer = this.layers[l]
+            let biases = []
+            let weights = [[]]
+
+            for (let node of layer.biases) {
+                biases.push(node)
+            }
+            for (let n in layer.weights) {
+                let node = layer.weights[n]
+                weights.push([])
+                for (let prev_node of node) {
+                    weights[n].push(prev_node)
+                }
+            }
+
+            params.push({
+                biases: biases,
+                weights: weights,
+            })
+        }
+
+        return {
+            layer_design: this.get_layer_design(),
+            parameters: params,
+        }
+    }
+
+    set_params(layer_design, params) {
+        if (!layer_design || !params || layer_design.length < 1 || params.length < 1) {
+            console.log("invalid parameter file, compare with a new saved one to check")
+            return false
+        }
+        let ld = this.get_layer_design()
+
+        for (let l in layer_design) {
+            let layer_size = layer_design[l]
+            if (layer_size != ld[l]) {
+                console.log("layer design doesn't match")
+                return false
+            }
+        }
+
+        for (let l = 1; l < this.layers.length; l++) {
+            let layer = this.layers[l]
+
+            for (let n in layer.biases) {
+                layer.biases[n] = params[l]["biases"][n]
+            }
+            for (let n in layer.weights) {
+                let node = layer.weights[n]
+                for (let pn in node) {
+                    node[pn] = params[l]["weights"][n][pn]
+                }
+            }
+        }
+
+        console.log("parameters copied.")
+        return true
     }
 }
 
