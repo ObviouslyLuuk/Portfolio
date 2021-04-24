@@ -386,38 +386,54 @@ class Display {
   resize(width, height, height_width_ratio) {
 
     let content_top_height = document.getElementById("content_top_div").offsetHeight
-    let middle_width = document.getElementById("content_top_middle_div").offsetWidth
-    let side_width = (width - middle_width) / 2
+    if (!window.mobileCheck()) {
+      let middle_width = document.getElementById("content_top_middle_div").offsetWidth
+      let side_width = (width - middle_width) / 2
 
-    if (this.graph) { 
-      this.graph.destroy() 
-      this.canvas.graph.height = content_top_height
-      this.canvas.graph.width = side_width
-      this.graph = this.initGraph()
-      this.updateGraph(document.value.nn)
-    } else {
-      this.canvas.graph.height = content_top_height
-      this.canvas.graph.width = side_width
+      if (this.graph) {
+        this.graph.destroy() 
+        this.canvas.graph.height = content_top_height
+        this.canvas.graph.width = side_width
+        this.graph = this.initGraph()
+        this.updateGraph(document.value.nn)
+      } else {
+        this.canvas.graph.height = content_top_height
+        this.canvas.graph.width = side_width
+      }
+
+      document.getElementById('content_top_div').style["grid-template-columns"] = `${side_width}px auto ${side_width}px`
+
+      let labels_bar_height = this.canvas.labels.height
+      this.canvas.labels.width = width
+      this.canvas.labels.height = labels_bar_height
+      let content_bottom_height = height - content_top_height
+      this.canvas.nn.width = width
+      this.canvas.nn.height = content_bottom_height - 5 - labels_bar_height      
+    } else { // Mobile
+      // If new mobile
+      document.getElementsByClassName("settings_div").forEach(element => {
+        element.style['grid-template-columns'] = "auto"
+      })
+      let content_div = document.getElementById("content_div")
+      let graph_canvas = document.getElementById("graph_canvas")
+      let top_right_div = document.getElementById("content_top_right_div")
+      top_right_div.parentElement.removeChild(top_right_div)
+      content_div.appendChild(top_right_div)
+      graph_canvas.parentElement.removeChild(graph_canvas)
+      content_div.appendChild(graph_canvas)
+
+      content_div.style['grid-template-rows'] = 'auto'
+      document.getElementById("content_top_div").style['grid-template-columns'] = 'auto'
+      // -----
+
+      let labels_bar_height = this.canvas.labels.height
+      this.canvas.labels.width = width
+      this.canvas.labels.height = labels_bar_height
+      let content_bottom_height = height - content_top_height
+      this.canvas.nn.width = width
+      this.canvas.nn.height = content_bottom_height - labels_bar_height      
+
     }
-
-    document.getElementById('content_top_div').style["grid-template-columns"] = `${side_width}px auto ${side_width}px`
-
-    let labels_bar_height = this.canvas.labels.height
-    this.canvas.labels.width = width
-    this.canvas.labels.height = labels_bar_height
-    let content_bottom_height = height - content_top_height
-    this.canvas.nn.width = width
-    this.canvas.nn.height = content_bottom_height - 5 - labels_bar_height
-
-
-    if (height / width > height_width_ratio) {
-
-      // TODO: mobile mode
-
-    } else {
-    }
-
-    // this.context.imageSmoothingEnabled = false;
 
   }
 

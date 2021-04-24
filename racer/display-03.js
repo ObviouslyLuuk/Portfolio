@@ -629,69 +629,89 @@ class Display {
     let nn_canvas = this.context.nn.canvas
     let nn_canvas_div = nn_canvas.parentElement
 
-    let content_bottom_div = document.getElementById("content_bottom_div")
-    let content_top_left_div = document.getElementById("content_top_left_div")
+    if (!window.mobileCheck()) {
+      let content_bottom_div = document.getElementById("content_bottom_div")
+      let content_top_left_div = document.getElementById("content_top_left_div")
 
-    if (height/width > 1/1.6) { // narrow/square screen
-      if (graph_canvas_div.parentElement == content_top_left_div) {
-        content_top_left_div.removeChild(graph_canvas_div)
-        content_top_left_div.removeChild(nn_canvas_div)
-        content_bottom_div.prepend(nn_canvas_div)
-        content_bottom_div.prepend(graph_canvas_div)
+      if (height/width > 1/1.6) { // narrow/square screen
+        if (graph_canvas_div.parentElement == content_top_left_div) {
+          content_top_left_div.removeChild(graph_canvas_div)
+          content_top_left_div.removeChild(nn_canvas_div)
+          content_bottom_div.prepend(nn_canvas_div)
+          content_bottom_div.prepend(graph_canvas_div)
 
-        let content_top_right_bar_div = document.getElementById("content_top_right_bar_div")
-        let content_top_right_div = document.getElementById("content_top_right_div")        
-        content_top_right_div.removeChild(content_top_right_bar_div)
-        content_top_right_div.appendChild(content_top_right_bar_div)        
-      }
+          let content_top_right_bar_div = document.getElementById("content_top_right_bar_div")
+          let content_top_right_div = document.getElementById("content_top_right_div")        
+          content_top_right_div.removeChild(content_top_right_bar_div)
+          content_top_right_div.appendChild(content_top_right_bar_div)        
+        }
 
-      let graph_width = content_div.offsetWidth * .5
-      let graph_height = content_div.offsetHeight - document.getElementById("content_top_div").offsetHeight
-      if (this.graph) { 
-        this.graph.destroy() 
-        graph_canvas.height = graph_height
-        graph_canvas.width = graph_width
-        this.graph = this.initGraph()
-        this.updateGraph(document.value.game)
+        let graph_width = content_div.offsetWidth * .5
+        let graph_height = content_div.offsetHeight - document.getElementById("content_top_div").offsetHeight
+        if (this.graph) { 
+          this.graph.destroy() 
+          graph_canvas.height = graph_height
+          graph_canvas.width = graph_width
+          this.graph = this.initGraph()
+          this.updateGraph(document.value.game)
+        } else {
+          graph_canvas.height = graph_height
+          graph_canvas.width = graph_width
+        }    
+    
+        nn_canvas.width = graph_width
+        nn_canvas.height = graph_height
       } else {
-        graph_canvas.height = graph_height
-        graph_canvas.width = graph_width
-      }    
-  
-      nn_canvas.width = graph_width
-      nn_canvas.height = graph_height
-    } else {
-      if (graph_canvas_div.parentElement == content_bottom_div) {
-        content_bottom_div.removeChild(graph_canvas_div)
-        content_bottom_div.removeChild(nn_canvas_div)
-        content_top_left_div.prepend(nn_canvas_div)
-        content_top_left_div.prepend(graph_canvas_div)
+        if (graph_canvas_div.parentElement == content_bottom_div) {
+          content_bottom_div.removeChild(graph_canvas_div)
+          content_bottom_div.removeChild(nn_canvas_div)
+          content_top_left_div.prepend(nn_canvas_div)
+          content_top_left_div.prepend(graph_canvas_div)
 
-        let content_top_right_bar_div = document.getElementById("content_top_right_bar_div")
-        let content_top_right_div = document.getElementById("content_top_right_div")        
-        content_top_right_div.removeChild(content_top_right_bar_div)
-        content_top_right_div.prepend(content_top_right_bar_div)
-      }
+          let content_top_right_bar_div = document.getElementById("content_top_right_bar_div")
+          let content_top_right_div = document.getElementById("content_top_right_div")        
+          content_top_right_div.removeChild(content_top_right_bar_div)
+          content_top_right_div.prepend(content_top_right_bar_div)
+        }
 
-      let graph_width = content_div.offsetWidth - this.context.map.canvas.offsetWidth - 5
-      let other_height =  document.getElementById("table_div").offsetHeight +
-                          document.getElementById("speed_div").offsetHeight +
-                          document.getElementById("content_top_left_bar_div").offsetHeight +5
-      let graph_height = (content_div.offsetHeight - other_height) * .5
-      if (this.graph) { 
-        this.graph.destroy() 
-        graph_canvas.height = graph_height
-        graph_canvas.width = graph_width
-        this.graph = this.initGraph()
-        this.updateGraph(document.value.game)
-      } else {
-        graph_canvas.height = graph_height
-        graph_canvas.width = graph_width
-      }    
-  
-      nn_canvas.width = graph_width
-      nn_canvas.height = graph_height      
+        let graph_width = content_div.offsetWidth - this.context.map.canvas.offsetWidth - 5
+        let other_height =  document.getElementById("table_div").offsetHeight +
+                            document.getElementById("speed_div").offsetHeight +
+                            document.getElementById("content_top_left_bar_div").offsetHeight +5
+        let graph_height = (content_div.offsetHeight - other_height) * .5
+        if (this.graph) { 
+          this.graph.destroy() 
+          graph_canvas.height = graph_height
+          graph_canvas.width = graph_width
+          this.graph = this.initGraph()
+          this.updateGraph(document.value.game)
+        } else {
+          graph_canvas.height = graph_height
+          graph_canvas.width = graph_width
+        }    
+    
+        nn_canvas.width = graph_width
+        nn_canvas.height = graph_height      
 
+      }      
+    } else { // Mobile
+      // If new mobile
+      document.getElementsByClassName("settings_div").forEach(element => {
+        element.style['grid-template-columns'] = "auto"
+      })
+      nn_canvas.parentElement.removeChild(nn_canvas)
+      content_div.appendChild(nn_canvas)
+      let top_left_div = document.getElementById("content_top_left_div")
+      top_left_div.parentElement.removeChild(top_left_div)
+      content_div.appendChild(top_left_div)
+      graph_canvas.parentElement.removeChild(graph_canvas)
+      content_div.appendChild(graph_canvas)
+
+      document.getElementById("content_top_div").style['grid-template-columns'] = 'auto'
+      // -----
+
+      nn_canvas.width = content_div.offsetWidth
+      nn_canvas.height = document.getElementById("content_top_div").offsetHeight 
     }
 
   }

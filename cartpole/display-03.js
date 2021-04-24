@@ -482,21 +482,41 @@ class Display {
     let graph_canvas = this.context.graph.canvas
     let nn_canvas = this.context.nn.canvas
 
-    let graph_width = content_div.offsetWidth * .5
-    let graph_height = content_div.offsetHeight - document.getElementById("content_top_div").offsetHeight
-    if (this.graph) { 
-      this.graph.destroy() 
-      graph_canvas.height = graph_height
-      graph_canvas.width = graph_width
-      this.graph = this.initGraph()
-      this.updateGraph(document.value.game)
-    } else {
-      graph_canvas.height = graph_height
-      graph_canvas.width = graph_width
-    }    
+    if (!window.mobileCheck()) {
+      let graph_width = content_div.offsetWidth * .5
+      let graph_height = content_div.offsetHeight - document.getElementById("content_top_div").offsetHeight
+      if (this.graph) { 
+        this.graph.destroy() 
+        graph_canvas.height = graph_height
+        graph_canvas.width = graph_width
+        this.graph = this.initGraph()
+        this.updateGraph(document.value.game)
+      } else {
+        graph_canvas.height = graph_height
+        graph_canvas.width = graph_width
+      }    
 
-    nn_canvas.width = graph_width
-    nn_canvas.height = graph_height    
+      nn_canvas.width = graph_width
+      nn_canvas.height = graph_height       
+    } else { // Mobile
+      // If new mobile
+      document.getElementsByClassName("settings_div").forEach(element => {
+        element.style['grid-template-columns'] = "auto"
+      })
+      nn_canvas.parentElement.removeChild(nn_canvas)
+      content_div.appendChild(nn_canvas)
+      let top_left_div = document.getElementById("content_top_left_div")
+      top_left_div.parentElement.removeChild(top_left_div)
+      content_div.appendChild(top_left_div)
+      graph_canvas.parentElement.removeChild(graph_canvas)
+      content_div.appendChild(graph_canvas)
+
+      document.getElementById("content_top_div").style['grid-template-columns'] = 'auto'
+      // -----
+
+      nn_canvas.width = content_div.offsetWidth
+      nn_canvas.height = document.getElementById("content_top_div").offsetHeight * 1.5
+    }
 
   }
 
