@@ -7,13 +7,13 @@ window.addEventListener("load", function(event) {
   ///////////////////
 
   var keyDownUp = function(event) {
-    controller.keyDownUp(event.type, event.keyCode);
-  };
+    controller.keyDownUp(event.type, event.keyCode)
+  }
 
   var resize = function(event) {
-    display.resize(document.documentElement.clientWidth - 32, document.documentElement.clientHeight - 32, game.world.height / game.world.width);
-    display.render();
-  };
+    display.resize(document.documentElement.clientWidth - 32, document.documentElement.clientHeight - 32, game.world.height / game.world.width)
+    display.render()
+  }
 
   var render = function() {
 
@@ -32,7 +32,7 @@ window.addEventListener("load", function(event) {
 
     display.render()
  
-  };
+  }
 
   var update = function() {
 
@@ -209,10 +209,10 @@ window.addEventListener("load", function(event) {
    //// OBJECTS ////
   /////////////////
 
-  var display    = new Display();
-  var controller = new Controller();
-  var game       = new Game();
-  var engine     = new Engine(1000/60, render, update);
+  var display    = new Display()
+  var controller = new Controller()
+  var game       = new Game()
+  var engine     = new Engine(1000/60, render, update)
 
   var sensors = [ // in order
     {corner: "frontLeft", dirs: ["straight"]}, 
@@ -257,17 +257,17 @@ window.addEventListener("load", function(event) {
    //// INITIALIZE ////
   ////////////////////
 
-  display.buffer.map.canvas.height = game.world.height;
-  display.buffer.map.canvas.width = game.world.width;  
-  display.buffer.car.canvas.height = game.world.height;
-  display.buffer.car.canvas.width = game.world.width;
-  display.context.map.canvas.height = game.world.height;
-  display.context.map.canvas.width = game.world.width;  
-  display.context.car.canvas.height = game.world.height;
-  display.context.car.canvas.width = game.world.width;
+  display.buffer.map.canvas.height = game.world.height
+  display.buffer.map.canvas.width = game.world.width
+  display.buffer.car.canvas.height = game.world.height
+  display.buffer.car.canvas.width = game.world.width
+  display.context.map.canvas.height = game.world.height
+  display.context.map.canvas.width = game.world.width
+  display.context.car.canvas.height = game.world.height
+  display.context.car.canvas.width = game.world.width
 
 
-  resize();
+  resize()
 
   controller.init_buttons(game)
   controller.init_settings()
@@ -283,11 +283,11 @@ window.addEventListener("load", function(event) {
   engine.start()
 
 
-  window.addEventListener("keydown", keyDownUp);
-  window.addEventListener("keyup",   keyDownUp);
-  window.addEventListener("resize",  resize);
+  window.addEventListener("keydown", keyDownUp)
+  window.addEventListener("keyup",   keyDownUp)
+  window.addEventListener("resize",  resize)
 
-});
+})
 
 
 

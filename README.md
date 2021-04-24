@@ -21,7 +21,7 @@ I also added the ability to drag your digits around to see how that changes the 
 ## OpenAI Gym cartpole
 In the second project I tackled the well known environment where a cart has to balance a pole by moving left or right. 
 
-![Exploding gradients in cartpole](https://drive.google.com/uc?id=1cUWwA_Hp71pzx8S6JFJbS5KNrHJezXg2)
+![Cartpole balancing](https://drive.google.com/uc?id=1cUWwA_Hp71pzx8S6JFJbS5KNrHJezXg2)
 *The white cart trying to balance the blue pole.*
 
 I chose to use a Double DQN, reusing the previous neural network as policy and target network. With the right parameters it can solve the environment in around 500 episodes (meaning: it achieves a rolling average of 196.0 over a hundred episodes), which translates to a few minutes depending on your hardware.
