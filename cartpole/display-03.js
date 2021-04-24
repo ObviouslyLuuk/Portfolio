@@ -1,4 +1,3 @@
-const COOL_GREEN = '99, 255, 132'
 const COOL_BLUE = '0, 115, 255'
 
 class Display {
@@ -20,22 +19,21 @@ class Display {
 
     this.graph = null
     this.rendered_episode = null    
-
-    // this.color1     = "#303030";
-    // this.color2     = "#992000";    
+ 
     this.color1     = 'white';
     this.color2     = `rgb(${COOL_BLUE},.5)`;
 
     this.scale = 1
   }
 
-
   init_elements() {
     document.body.style.color = 'white'
-    document.body.style.display = 'block'
-    document.body.style.padding = '10px'
+    document.body.style.display = 'grid'
+    document.body.style.position = 'relative'
+    document.body.style['align-items'] = 'center'    
 
     let innerHTML = `
+    <div id="content_wrapper" style="width:100%;height:100%;position:absolute;padding:10px">
     <div id="content_div" style="width: 100%; height: 100%;display:grid;grid-template-rows:min-content;">
       <div id="content_top_div" style="display: grid; grid-template-columns: auto 60%; align-items: center; column-gap:5px;">
         <div id="content_top_left_div" style="height:100%;display:grid;align-items:end;">
@@ -62,7 +60,7 @@ class Display {
             <div id="fps"></div>
           </div>
           <div id="content_top_left_bar_div" style="display:grid; grid-template-columns:auto auto auto auto; column-gap:5px;">
-            <button id="settings_btn" class="btn">Settings</button>
+            <button id="info_btn" class="btn">Info</button>
             <button id="reset_btn" class="btn">Reset</button>
             <button id="save_btn" class="btn">Save</button>
             <input id="load_btn" type="file" name="files[]" style="display:none;">
@@ -84,19 +82,143 @@ class Display {
         <div id="nn_canvas_div" style="display:grid"><canvas id="nn_canvas" style="image-rendering: auto;"></canvas></div>
       </div>
     </div>
+    </div>
     ` 
 
-    document.body.insertAdjacentHTML('beforeend', innerHTML) 
+    let info = `
+    In this project the little white cart is supposed to learn how to balance the blue bar without it reaching 12 degrees. 
+    It attempts this by using a Double Deep Q-Network (DDQN), which updates neural network weights and biases based on experience replay. 
+    The main neural network is the policy network; it accepts input from the cart (Position, Velocity, Angle and Angular Velocity) 
+    and gives a Q-value (the total expected future reward) for each possible policy (Left or Right) it can take. 
+    The cart then takes the decision with the highest value, or a completely random one, where epsilon (exploration rate) 
+    is the probability it does something random. The experience from every timestep, consisting of the input state, action, 
+    resulting state and reward, is saved into a memory replay buffer. At every timestep a random batch is taken from this replay buffer, 
+    on which we run Stochastic Gradient Descent (see the digits project for a more detailed description).
+    The updates to the weights and biases are scaled using the learning rate eta (sometimes called alpha).
+    <br> What makes a DQN a Double DQN is the addition of a target network.
+    `
+
+    let settings = `
+    <div id="info_div" style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;display:none;">
+    <a id="close_info_btn" class="btn" style="position: absolute;right: 5px;top: 0px;z-index:1;">x</a>
+    <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
+
+      <h2>Info</h2>
+      <p>${info}</p>
+      <br>
+
+      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+
+        <h2 style="justify-self: center;">Settings</h2>
+        <h4>Basic Hyperparameters</h4>
+        <div class="settings_div">
+          <div>
+            <input id="epsilon_decay"> 
+            <label for="epsilon_decay">Epsilon Decay</label>
+            <p class="settings_expl">This is the factor with which the epsilon value is multiplied each episode, to gradually decrease randomness.</p>
+          </div>
+          <div>
+            <input id="gamma"> 
+            <label for="gamma">Gamma</label>
+            <p class="settings_expl">This is the discount factor of the estimated future reward when calculating the error of the network.</p>
+          </div>
+          <div>
+            <input id="replay_buffer_size"> 
+            <label for="replay_buffer_size">Memory Replay Buffer Size</label>
+            <p class="settings_expl">The amount of experiences (combination of action, state, next state and reward) that can be saved at one time. When this is full a random experience gets replaced with each timestep.</p>
+          </div>
+          <div>
+            <input id="batch_size"> 
+            <label for="batch_size">Batch Size</label>
+            <p class="settings_expl">The amount of experiences that are used in Stochastic Gradient Descent each timestep.</p>
+          </div>
+          <div>
+            <input id="double_dqn" type="checkbox"> 
+            <label for="double_dqn">Double DQN</label>
+            <p class="settings_expl">Enables the target network. If set to false the policy network serves as its own judge, which can lead to instability.</p>
+          </div>
+          <div>
+            <input id="target_net_timer"> 
+            <label for="target_net_timer">Target Net Update Timer</label>
+            <p class="settings_expl">The timesteps to pass before the target network is updated to the learned parameters of the policy network.</p>
+          </div>
+        </div>
+        <br>
+        <h4>Environment</h4>
+        <div class="settings_div">
+          <div>
+            <input id="episode_limit"> 
+            <label for="episode_limit">Episode Limit</label>
+            <p class="settings_expl">The maximum number of timesteps in an episode. Infinity is fine (turned off) but if you want more and shorter episodes set it to around 2000</p>
+          </div>               
+          <div>
+            <button id="load_best_btn" class="btn">Load Best Parameters</button>
+            <p class="settings_expl">Loads the best parameters I've trained so far</p>
+          </div>
+        </div>
+        <br>
+        <h4>Advanced Settings / Heuristics</h4>
+        <div class="settings_div">
+          <div>
+            <input id="auto_set_best"> 
+            <label for="auto_set_best">Automatic Reset to Best</label>
+            <p class="settings_expl">Takes the average score of this amount of recent episodes. If that average is significantly lower than the high score it resets to the best parameters. Infinity turns it off</p>
+          </div>
+          <div>
+            <input id="auto_adjust_eta"> 
+            <label for="auto_adjust_eta">Automatic Eta Adjustment</label>
+            <p class="settings_expl">Decreases the learning rate when performing well and increases when it's not. This integer dictates how many episodes can go by without updating</p>
+          </div>
+          <div>
+            <input id="auto_adjust_epsilon"> 
+            <label for="auto_adjust_epsilon">Automatic Epsilon Adjustment</label>
+            <p class="settings_expl">Increases the randomness when stagnating. This integer dictates how many episodes can go by without updating</p>
+          </div>
+          <div>
+            <input id="printing" type="checkbox"> 
+            <label for="printing">Printing</label>
+            <p class="settings_expl">If set to true this prints some messages in the console when updates happen.</p>
+          </div>
+        </div>
+        <button id="set_default_btn" class="btn">Set Default</button>
+      </div>
+    </div>
+    </div>
+    `
+
+    let style = `
+    <style>
+    .settings_expl {
+      font-size: 12px;
+      color: darkgrey;
+    }
+    h4 {
+      border-bottom: solid rgb(${COOL_BLUE});
+    }
+    .settings_div {
+      display:grid;
+      grid-template-columns:repeat(2,50%);
+    }
+    #info_div input {
+      width:60px;
+    }
+    </style>
+    `
+
+    document.body.insertAdjacentHTML('beforeend', innerHTML)
+    document.body.insertAdjacentHTML('beforeend', settings)
+    document.body.insertAdjacentHTML('beforeend', style)
   }
   
   updateStats(game, net_controller) {
     document.getElementById("episode_nr").innerHTML = game.episode_nr
     document.getElementById("best_score").innerHTML = game.best_score
     if (game.avg_scores[0]) {
-      document.getElementById("avg_score").innerHTML = game.avg_scores[0].toFixed(2) }
+      try { document.getElementById("avg_score").innerHTML = game.avg_scores[0].toFixed(2) } catch(err) {console.log(err)}
+    }
     document.getElementById("current_score").innerHTML = `Score: ${game.world.score}`
     document.getElementById("episodes_since_best").innerHTML = game.episodes_since_best
-    document.getElementById("epsilon").value = net_controller.epsilon.toFixed(3)
+    try { document.getElementById("epsilon").value = net_controller.epsilon.toFixed(3) } catch(err) {console.log(err)}
     document.getElementById("eta").value = net_controller.eta
     document.getElementById("total_parameters").innerHTML = net_controller.total_parameters
     document.getElementById("total_neurons").innerHTML = net_controller.total_neurons
@@ -295,7 +417,6 @@ class Display {
     }
   }  
 
-
   init(world) {
     let world_width = world.x_threshold * 2
     this.scale = world.width / world_width
@@ -305,8 +426,6 @@ class Display {
   }
 
   drawWorld(world) {
-    // this.buffer.cart.clearRect(-1000,-1000,2000,2000)
-    // this.buffer.cart.fillStyle = "#ffffff";
     this.buffer.cart.clearRect(-1000,-1000,10000, 10000)
     this.context.cart.clearRect(-1000,-1000,10000, 10000)
 
@@ -375,8 +494,6 @@ class Display {
 
     nn_canvas.width = graph_width
     nn_canvas.height = graph_height    
-
-    // this.context.cart.imageSmoothingEnabled = false;
 
   }
 

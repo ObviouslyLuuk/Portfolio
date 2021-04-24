@@ -27,7 +27,6 @@ class Controller {
         div.style.display = 'none'
       }
     }
-
     document.getElementById("close_info_btn").onclick = function() {
       document.getElementById("info_div").style.display = 'none'
     }

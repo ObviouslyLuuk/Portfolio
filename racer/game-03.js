@@ -32,11 +32,10 @@ class Game {
 
     this.params = null
     this.best_params = null
+    this.last_set_to_best = 0
 
     this.got_batch = null
     this.weights = [[[]]]
-
-    this.last_set_to_best = 0
   }
 
   set_default_settings() {

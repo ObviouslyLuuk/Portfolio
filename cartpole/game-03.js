@@ -1,12 +1,17 @@
-// Frank Poth 03/23/2018
-
 class Game {
   constructor() {
+    this.world = new Game.World(this)
 
     this.state = 'train' // can be train, drive
 
-    this.world = new Game.World()
+    // Settings
+    this.printing = false
+    this.max_steps = 500
+    this.auto_set_best = 15
+    this.auto_adjust_eta = 5 // 5
+    this.auto_adjust_epsilon = 2 // 2    
 
+    // Trackers
     this.episode_nr = 0
     this.best_score = -Infinity
     this.scores = []
@@ -14,9 +19,59 @@ class Game {
     this.epsilons = []
     this.episodes_since_best = 0
 
+    this.params = null
+    this.best_params = null
+    this.last_set_to_best = 0
+
     this.got_batch = null
-    this.weights = [[[]]]    
+    this.weights = [[[]]]
   }
+
+  set_default_settings() {
+    let net_controller = document.value.net_controller
+    net_controller.eta = .001
+    net_controller.epsilon = 1
+    net_controller.epsilon_decay = .95
+    net_controller.gamma = 1
+    net_controller.batch_size = 64
+    net_controller.change_buffer_size(50000)
+    net_controller.double_dqn = true
+    net_controller.target_update_time = 500
+
+    this.state = 'train'
+
+    this.printing = false
+    this.max_steps = 500
+    this.auto_set_best = 15
+    this.auto_adjust_eta = 5
+    this.auto_adjust_epsilon = 2
+
+    this.reset()
+    document.value.controller.settings_update_values()
+  }
+
+  load_best() {
+    let net_controller = document.value.net_controller
+    // net_controller.change_design(BEST_PARAMS.layer_design) // TODO
+    net_controller.set_params(BEST_PARAMS.layer_design, BEST_PARAMS.parameters)
+    net_controller.epsilon = 0
+    net_controller.eta = 0
+
+    this.printing = false
+    this.max_steps = Infinity
+    this.auto_set_best = Infinity
+    this.auto_ajust_eta = Infinity
+    this.auto_ajust_epsilon = Infinity
+
+    this.last_set_to_best = 0    
+    document.value.controller.settings_update_values()
+  }
+
+  set_best() {
+    document.value.net_controller.reset()
+    document.value.net_controller.set_params(this.best_params.layer_design, this.best_params.parameters)
+    this.last_set_to_best = 0
+  }  
 
   get_weights(nn) {
     if (this.got_batch == nn.target_update_timer) return
@@ -38,14 +93,15 @@ class Game {
     this.scores.unshift(this.world.score)
 
     this.episodes_since_best++
-    if (this.world.score > this.best_score) {
+    if (this.world.score >= this.best_score) { // >= because a later equal score likely has better params
       this.best_score = this.world.score
       this.episodes_since_best = 0
+      this.best_params = this.params
     }
 
     // Get average score over the past 100 episodes
     let average = 0
-    for (let s = 0; s < 100 && this.scores[s]; s++) {
+    for (let s = 0; s < 100 && this.scores[s] != undefined; s++) {
       let score = this.scores[s]
       average += score
     }
@@ -57,17 +113,19 @@ class Game {
 
     this.reset()
 
-    // TODO: save params at start of every episode and then if that episode turns out to be a high score set those params as the best params so far (and save in file?)
+    this.last_set_to_best++
   }  
 
   reset() {
     this.world.reset()
+    this.params = document.value.net_controller.get_params()
   }
 }
 
 /* https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py#L75 */
 Game.World = class {
-  constructor() {
+  constructor(game) {
+    this.game = game
 
     this.gravity          = 9.8
     this.masscart         = 1.0
@@ -82,10 +140,6 @@ Game.World = class {
     // Angle at which to fail the episode
     this.theta_threshold_radians  = 12 * 2*Math.PI/360
     this.x_threshold              = 2.4
-
-    // Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
-    // unnecessary code?
-    // ------------------
 
     this.state = {
       x:          null,
@@ -102,7 +156,7 @@ Game.World = class {
     this.width = 600
     this.height = 200
 
-  };
+  }
 
   update(action) {
 
@@ -116,7 +170,7 @@ Game.World = class {
       force =  this.force_mag
     } else if (action == "moveLeft") {
       force = -this.force_mag
-    } else {
+    } else { // Personal addition by me to enable player-driving
       force = 0
     }
     let costheta = Math.cos(theta)
@@ -151,7 +205,8 @@ Game.World = class {
       x     < -this.x_threshold             ||
       x     >  this.x_threshold             ||
       theta < -this.theta_threshold_radians ||
-      theta >  this.theta_threshold_radians
+      theta >  this.theta_threshold_radians ||
+      this.score+1 >= this.game.max_steps
     )
 
     let reward
@@ -162,7 +217,7 @@ Game.World = class {
       this.steps_beyond_done = 0
       reward = 1.0
     } else {
-      if (this.steps_beyond_done == 0) {
+      if (this.steps_beyond_done == 0 && this.game.printing) {
         console.log("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
       }
       this.steps_beyond_done++
@@ -194,3 +249,180 @@ Game.World = class {
   }
 
 }
+
+const BEST_PARAMS = JSON.parse(`
+{
+  "layer_design": [
+      4,
+      16,
+      2
+  ],
+  "parameters": [
+      {},
+      {
+          "biases": [
+              8.533775196276327,
+              4.01634057612759,
+              3.1076590134040294,
+              1.4501871993468647,
+              -8.023924146127019,
+              2.846417782954847,
+              0.07360757516233725,
+              -3.125468803453354,
+              4.946425826820902,
+              2.1186406354425023,
+              -2.3563481621403275,
+              5.600685029998045,
+              5.209862742231267,
+              3.7937093217457725,
+              2.003625212144399,
+              -1.8138784863700692
+          ],
+          "weights": [
+              [
+                  0.4230935667178865,
+                  -0.0743071017339308,
+                  3.4596939977134773,
+                  4.9560666957258395
+              ],
+              [
+                  -1.0538181071552535,
+                  0.10911561009249739,
+                  -0.28971269526289434,
+                  0.07679356830841154
+              ],
+              [
+                  0.054434123037538085,
+                  1.250140095746419,
+                  0.19513685773017794,
+                  -2.4165088271384847
+              ],
+              [
+                  -0.8240691648939148,
+                  1.4833718774668199,
+                  2.85036187352959,
+                  6.2282665254421605
+              ],
+              [
+                  -0.3215191917694123,
+                  2.1615743189814007,
+                  -3.000951555586858,
+                  -5.3805853752566355
+              ],
+              [
+                  -0.4252190878487423,
+                  0.43663322370351887,
+                  1.840758207438294,
+                  1.7439480576185902
+              ],
+              [
+                  0.8564317680173289,
+                  4.423104347014352,
+                  11.235894431623498,
+                  3.195890258744482
+              ],
+              [
+                  0.46020580616380596,
+                  -0.9662955904305773,
+                  -6.089149813309398,
+                  -4.721765183292652
+              ],
+              [
+                  -0.1887142196804417,
+                  2.711187134231597,
+                  5.281435858387881,
+                  4.294319991095868
+              ],
+              [
+                  -0.057084091770892034,
+                  1.460051986946057,
+                  0.6165967693333669,
+                  -1.4001065438787552
+              ],
+              [
+                  -0.8065484958246951,
+                  0.6704694923624565,
+                  4.105113680975012,
+                  4.706541160468928
+              ],
+              [
+                  0.546332674646471,
+                  0.643371107710731,
+                  2.368696054688609,
+                  1.3755093937691578
+              ],
+              [
+                  0.10608993621399868,
+                  0.8651710690397719,
+                  0.5993314982976504,
+                  -1.7680585365137649
+              ],
+              [
+                  -0.10801305806335738,
+                  0.871769187047958,
+                  2.4440970451225215,
+                  0.5325965528006197
+              ],
+              [
+                  -0.12862348377489388,
+                  1.4663125471701766,
+                  0.9881338882386893,
+                  -1.7105354802480401
+              ],
+              [
+                  -0.06828921696069018,
+                  0.5365226853804766,
+                  -0.6194008081762572,
+                  -1.2383733310729228
+              ],
+              []
+          ]
+      },
+      {
+          "biases": [
+              1.2796173393482553,
+              3.0249278382927067
+          ],
+          "weights": [
+              [
+                  7.889637706644364,
+                  -2.561543691292861,
+                  2.741489662843375,
+                  -6.333402132880498,
+                  9.102864729776334,
+                  2.9427330513430574,
+                  -6.536149193252116,
+                  2.0121513840741,
+                  6.530113779746275,
+                  2.0264831529851453,
+                  -5.108259489243547,
+                  -2.216999500970325,
+                  1.635545904044935,
+                  -0.5833828028822357,
+                  2.2658097855317654,
+                  2.078100621812314
+              ],
+              [
+                  4.140018333351913,
+                  -2.9789596978979986,
+                  2.290346840708402,
+                  -0.8782162064887667,
+                  -2.8793839089069433,
+                  1.0233442975947606,
+                  -6.753372350070613,
+                  -7.460834983780046,
+                  1.3300598234718861,
+                  1.4778294946482897,
+                  -3.9844198349725617,
+                  3.8141709170019964,
+                  4.5094935509175835,
+                  2.4634252582918004,
+                  0.9540751247917618,
+                  -0.6892989071615947
+              ],
+              []
+          ]
+      }
+  ]
+}
+`)

@@ -295,7 +295,7 @@ function mean(array, begin=0, end=Infinity) {
   let sum = 0
   for (let i = begin; i < end; i++) { sum += array[i] }
   return sum / (end-begin)
-} 
+}
 
 function check_stagnation(array, end=Infinity) {
   if (end == Infinity) end = array.length-1

@@ -85,7 +85,7 @@ class Display {
           <input id="speed_slider" type="range" min=0 max=10 value=5 style="width:100%;">
           <div id="content_top_right_bar_div" style="display: grid; grid-template-columns: 49% 49%; column-gap: 2%;">
             <button id="reset_btn" class="btn">Reset</button>
-            <button id="settings_btn" class="btn">Settings</button>
+            <button id="info_btn" class="btn">Info</button>
           </div>
         </div>
       </div>
