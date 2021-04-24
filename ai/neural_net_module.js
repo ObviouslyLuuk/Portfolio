@@ -4,9 +4,10 @@ import {mnist} from "./mnist_16k.js"
 // ==============================================
 
 window.NeuralNet = class NeuralNet {
-    constructor(data=mnist, layer_design, test_ratio=.1, seed=0, printing=0) {
+    constructor(data=mnist, layer_design, test_ratio=.1, eta=1, batch_size=100, seed=0, printing=0) {
         this.printing = printing
-        this.eta = 1
+        this.eta = eta
+        this.batch_size = batch_size
         this.activation_func = "sigmoid"
 
         // Data is a list of objects like {x: input, y: label} with x as a list of input activations and y as a list of possible outcomes where the correct one has 1 as value
@@ -69,20 +70,20 @@ window.NeuralNet = class NeuralNet {
         return layers
     }
 
-    init_batches(batch_size=100) {
+    init_batches() {
         // Divide data into batches
         shuffleArray(this.data)
         let batches = [[]]
-        if (this.printing >= 0) console.log("Making Batches")
+        if (this.printing > 0) console.log("Making Batches")
         let batch_nr = 0
         for (let index in this.data) {
-            if (index % batch_size == 0 && index > 0) {
+            if (index % this.batch_size == 0 && index > 0) {
                 batches.push([]);
                 batch_nr += 1;
             }
             batches[batch_nr].push(this.data[index])
         }
-        if (this.printing >= 0) console.log("Batches done")
+        if (this.printing > 0) console.log("Batches done")
         return batches
     }
 

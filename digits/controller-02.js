@@ -17,6 +17,7 @@ class Controller {
       eraser: document.getElementById("eraser_btn"),
       move: document.getElementById("move_btn"),
       reset: document.getElementById("reset_btn"),
+      info: document.getElementById("info_btn"),
     }
   }
 
@@ -48,6 +49,19 @@ class Controller {
     }
 
     this.buttons.reset.onclick = function() { document.value.nn.reset() }
+
+    this.buttons.info.onclick = function() {
+      let div = document.getElementById("info_div")
+      let display = div.style.display
+      if (display == 'none') {
+        div.style.display = 'block'
+      } else {
+        div.style.display = 'none'
+      }      
+    }
+    document.getElementById("close_info_btn").onclick = function() {
+      document.getElementById("info_div").style.display = 'none'
+    }
 
     this.buttons.draw.onclick = function() {
       document.value.controller.enable_draw()
@@ -83,6 +97,36 @@ class Controller {
 
     this.buttons.clear.onclick = document.value.controller.clear_grid
   }
+
+  
+  init_settings() {
+    this.settings_update_values()
+
+    document.getElementById("set_default_btn").onclick = function() {
+      document.value.game.set_default_settings()
+    }
+
+    document.getElementById("printing").onchange = function() {
+      document.value.nn.printing = this.checked
+    }
+    document.getElementById("eta").onchange = function() {
+      document.value.nn.eta = this.value
+    }
+    document.getElementById("batch_size").onchange = function() {
+      document.value.nn.batch_size = this.value
+    }
+    document.getElementById("load_best_btn").onclick = function() {
+      document.value.game.load_best()
+    }
+
+  }
+
+  settings_update_values() {
+    document.getElementById("printing").checked = document.value.nn.printing
+    document.getElementById("eta").value = document.value.nn.eta
+    document.getElementById("batch_size").value = document.value.nn.batch_size
+  }
+
 
   /** Enables button and game state to draw */
   enable_draw() {

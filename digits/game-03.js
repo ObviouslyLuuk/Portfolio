@@ -9,7 +9,13 @@ class Game {
 
   load_best() {
     document.value.nn.set_params(BEST_PARAMS.layer_design, BEST_PARAMS.parameters)
-    this.state = "example"
+  }
+
+  set_default_settings() {
+    let nn = document.value.nn
+    nn.eta = 1
+    nn.batch_size = 100
+    nn.printing = false
   }
 
   get_weights(nn) {

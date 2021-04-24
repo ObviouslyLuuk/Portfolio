@@ -98,6 +98,7 @@ window.addEventListener("load", function(event) {
   resize()
   game.load_best()
   controller.init_buttons(game)
+  controller.init_settings()
   controller.init_draw(display.canvas.input)
   display.graph = display.initGraph()
 

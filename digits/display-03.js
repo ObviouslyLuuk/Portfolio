@@ -34,10 +34,12 @@ class Display {
 
   initElements() {
     document.body.style.color = 'white'
-    document.body.style.display = 'block'
-    document.body.style.padding = '10px'
+    document.body.style.display = 'grid'
+    document.body.style.position = 'relative'
+    document.body.style['align-items'] = 'center'
 
     let innerHTML = `
+    <div id="content_wrapper" style="width:100%;height:100%;position:absolute;padding:10px">
     <div id="content_div" style="display: grid; align-items: center; justify-items: center; width:100%; height:100%; grid-template-rows: 40% 60%;">
       <div id="content_top_div" style="display: grid; align-items: end; justify-items: center; grid-template-columns: 35% 30% 35%; width: 100%; height:100%; column-gap:5px">
         <div id="content_top_left_div" style="width: 100%; height:100%">
@@ -95,10 +97,75 @@ class Display {
           <canvas id="nn_labels_canvas" width='1000px' height='40px' style="width: 100%; image-rendering: auto;"></canvas>
         </div>
       </div>
-    </div>    
+    </div>
+    </div> 
     `
 
-    document.body.insertAdjacentHTML('beforeend', innerHTML) 
+    let info = `
+    In this project a neural network is used to recognize handwritten digits from the famous MNIST dataset.
+    `
+
+    let settings = `
+    <div id="info_div" style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;display:none;">
+    <a id="close_info_btn" class="btn" style="position: absolute;right: 5px;top: 0px;z-index:1;">x</a>
+    <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
+
+      <h2>Info</h2>
+      <p>${info}</p>
+      <br>
+
+      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+
+        <h2 style="justify-self: center;">Settings</h2>
+        <div class="settings_div">
+          <div>
+            <input id="eta"> 
+            <label for="eta">Eta</label>
+            <p class="settings_expl">This is the factor with which the epsilon value is multiplied each episode, to gradually decrease randomness.</p>
+          </div>
+          <div>
+            <input id="batch_size"> 
+            <label for="batch_size">Batch Size</label>
+            <p class="settings_expl">This is the discount factor of the estimated future reward when calculating the error of the network.</p>
+          </div>
+          <div>
+            <button id="load_best_btn" class="btn">Load Best Parameters</button>
+            <p class="settings_expl">Loads the best parameters I've trained so far</p>
+          </div>
+          <div>
+            <input id="printing" type="checkbox"> 
+            <label for="printing">Printing</label>
+            <p class="settings_expl">If set to true this prints some messages in the console when updates happen.</p>
+          </div>              
+        </div>
+        <button id="set_default_btn" class="btn">Set Default</button>
+      </div>
+    </div>
+    </div>
+    `
+
+    let style = `
+    <style>
+    .settings_expl {
+      font-size: 12px;
+      color: darkgrey;
+    }
+    h4 {
+      border-bottom: solid rgb(${COOL_BLUE});
+    }
+    .settings_div {
+      display:grid;
+      grid-template-columns:repeat(2,50%);
+    }
+    #info_div input {
+      width:60px;
+    }
+    </style>
+    `
+
+    document.body.insertAdjacentHTML('beforeend', innerHTML)
+    document.body.insertAdjacentHTML('beforeend', settings)
+    document.body.insertAdjacentHTML('beforeend', style)
   }
 
   updateStats(nn) {
