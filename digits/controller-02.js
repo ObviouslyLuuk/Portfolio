@@ -50,55 +50,64 @@ class Controller {
     this.buttons.reset.onclick = function() { document.value.nn.reset() }
 
     this.buttons.draw.onclick = function() {
-      let controller = document.value.controller;
-
-      controller.buttons.draw.setAttribute('class', "btn btn-primary");
-
-      document.value.game.state = "draw";
-
-      controller.erase = false;
-      controller.buttons.eraser.setAttribute('class', "btn");
-
-      document.value.engine.setSlowMo(false);
-      document.value.engine.changeTimeStep(1000/16, false, false);
-      document.getElementById("speed_slider").disabled = true;
-
-      for (let mode of ["epoch", "batch", "example"]) {
-        controller.buttons[mode].checked = false
-      }
+      document.value.controller.enable_draw()
     }
     
     this.buttons.eraser.onclick = function() {
-      let controller = document.value.controller;
+      let controller = document.value.controller
+      if (document.value.game.state != "draw") { document.value.controller.enable_draw() }
       if (controller.erase) {
-        document.value.controller.erase = false;
-        document.value.controller.buttons.eraser.setAttribute('class', "btn");
+        document.value.controller.erase = false
+        document.value.controller.buttons.eraser.setAttribute('class', "btn")
       } else {
-        document.value.controller.erase = true;
-        document.value.controller.buttons.eraser.setAttribute('class', "btn btn-primary");
-        document.value.controller.move = false;
-        document.value.controller.buttons.move.setAttribute('class', "btn");
+        document.value.controller.erase = true
+        document.value.controller.buttons.eraser.setAttribute('class', "btn btn-primary")
+        document.value.controller.move = false
+        document.value.controller.buttons.move.setAttribute('class', "btn")
       }      
     }
 
     this.buttons.move.onclick = function() {
-      let controller = document.value.controller;
+      let controller = document.value.controller
+      if (document.value.game.state != "draw") { document.value.controller.enable_draw() }
       if (controller.move) {
-        document.value.controller.move = false;
-        document.value.controller.buttons.move.setAttribute('class', "btn");
+        document.value.controller.move = false
+        document.value.controller.buttons.move.setAttribute('class', "btn")
       } else {
-        document.value.controller.move = true;
-        document.value.controller.buttons.move.setAttribute('class', "btn btn-primary");
-        document.value.controller.erase = false;
-        document.value.controller.buttons.eraser.setAttribute('class', "btn");      
+        document.value.controller.move = true
+        document.value.controller.buttons.move.setAttribute('class', "btn btn-primary")
+        document.value.controller.erase = false
+        document.value.controller.buttons.eraser.setAttribute('class', "btn")
       }      
     }
 
     this.buttons.clear.onclick = document.value.controller.clear_grid
   }
 
-  // inspo from: https://stackoverflow.com/questions/2368784/draw-on-html5-canvas-using-a-mouse
+  /** Enables button and game state to draw */
+  enable_draw() {
+    let controller = document.value.controller;
+
+    controller.buttons.draw.setAttribute('class', "btn btn-primary");
+
+    document.value.game.state = "draw";
+
+    controller.erase = false;
+    controller.buttons.eraser.setAttribute('class', "btn");
+
+    document.value.engine.setSlowMo(false);
+    document.value.engine.changeTimeStep(1000/16, false, false);
+    document.getElementById("speed_slider").disabled = true;
+
+    for (let mode of ["epoch", "batch", "example"]) {
+      controller.buttons[mode].checked = false
+    }
+  }
+
+  /** Inits event listeners for drawing */
   init_draw(canvas) {
+    // inspo from: https://stackoverflow.com/questions/2368784/draw-on-html5-canvas-using-a-mouse
+
     // Adding it to canvas means it only listens when the mouse is over the canvas element, and in the functions 'this' will be the canvas
     canvas.addEventListener('mousedown', this.begin_draw)
     canvas.addEventListener('mousemove', this.draw)
@@ -112,6 +121,7 @@ class Controller {
     })
   }
 
+  /** Puts a dot (for mousedown) */
   begin_draw(event) {
     if (document.value.game.state != "draw") return
 
@@ -141,6 +151,7 @@ class Controller {
     }
   }
 
+  /** Draws (for mousemove) */
   draw(event) {
     if (!document.value.controller.mousedown) return
     if (document.value.game.state != "draw") return
