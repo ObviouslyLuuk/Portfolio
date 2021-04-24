@@ -15,7 +15,7 @@ class Controller {
     document.getElementById("speed_slider").oninput = function() {
       let time_step = this.value*this.value*2
       document.value.engine.changeTimeStep(1000/time_step)
-      document.getElementById("fps").innerHTML = time_step
+      document.value.controller.adjust_speed_slider(time_step, false)
     }
 
     document.getElementById("info_btn").onclick = function() {
@@ -94,13 +94,19 @@ class Controller {
     }    
 
     document.getElementById("drive_btn").onclick = function() {
+      let time_step
       if (document.value.game.state == "drive") {
         document.value.game.state = "train"
         document.value.controller.buttons_pressed([])
+        document.value.engine.changeTimeStep(null, true, false)
+        time_step = 1000/document.value.engine.time_step
       } else {
         document.value.game.state = "drive"
         document.value.controller.buttons_pressed(["drive_btn"])
+        time_step = 50
+        document.value.engine.changeTimeStep(1000/time_step, false, true)
       }
+      document.value.controller.adjust_speed_slider(time_step, false)
     }
 
     document.getElementById("draw_btn").onclick = function() {
@@ -175,6 +181,14 @@ class Controller {
         document.value.net_controller.eta = 0
       }
     }    
+  }
+
+  adjust_speed_slider(time_step, lock) {
+    let slider = document.getElementById("speed_slider")
+    slider.value = Math.sqrt(time_step*.5)
+    if (lock) { slider.disabled = true }
+    else      { slider.disabled = false }
+    document.getElementById("fps").innerHTML = time_step.toFixed(0)
   }
 
   init_settings() {
@@ -279,17 +293,23 @@ class Controller {
   }
 
   toggle_draw(turn_on) {
-    // TODO: Set a decent engine timestep?
-    
     let draw_type = document.value.controller.draw_type
     document.getElementById(`draw_${draw_type}_btn`).setAttribute('class', "btn btn-primary")
     if (turn_on) {
       document.getElementById(`draw_btn`).setAttribute('class', "btn btn-primary")
       document.getElementById("draw_buttons_div").style.display = "grid"
       document.getElementById("content_top_right_bar_div").style["grid-template-columns"] = "auto auto auto auto"
+
+      let time_step = 25
+      document.value.engine.changeTimeStep(1000/time_step, false, true)
+      document.value.controller.adjust_speed_slider(time_step, true)
     } else {
       document.getElementById("draw_buttons_div").style.display = "none"
       document.getElementById("content_top_right_bar_div").style["grid-template-columns"] = "auto auto auto"
+
+      document.value.engine.changeTimeStep(null, true, false)
+      let time_step = 1000/document.value.engine.time_step
+      document.value.controller.adjust_speed_slider(time_step, false)      
     }
     document.value.game.reset()
   }

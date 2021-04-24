@@ -148,6 +148,7 @@ window.addEventListener("load", function(event) {
 
   controller.init_buttons(game)
   controller.init_settings()
+  controller.adjust_speed_slider(1000/engine.time_step)
   display.graph = display.initGraph()
   fill_replay_memory()
 

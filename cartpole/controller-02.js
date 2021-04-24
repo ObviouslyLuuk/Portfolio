@@ -10,7 +10,7 @@ class Controller {
     document.getElementById("speed_slider").oninput = function() {
       let time_step = this.value*this.value*2
       document.value.engine.changeTimeStep(1000/time_step)
-      document.getElementById("fps").innerHTML = time_step
+      document.value.controller.adjust_speed_slider(time_step)
     }
 
     document.getElementById("info_btn").onclick = function() {
@@ -63,13 +63,21 @@ class Controller {
     }
 
     document.getElementById("drive_btn").onclick = function() {
+      let time_step
       if (document.value.game.state == "drive") {
         document.value.game.state = "train"
-        document.getElementById("drive_btn").setAttribute('class', "btn")        
+        document.getElementById("drive_btn").setAttribute('class', "btn")
+        
+        document.value.engine.changeTimeStep(null, true, false)
+        time_step = 1000/document.value.engine.time_step
       } else {
         document.value.game.state = "drive"
-        document.getElementById("drive_btn").setAttribute('class', "btn btn-primary")        
+        document.getElementById("drive_btn").setAttribute('class', "btn btn-primary")
+        
+        time_step = 50
+        document.value.engine.changeTimeStep(1000/time_step, false, true)
       }
+      document.value.controller.adjust_speed_slider(time_step)
     }
 
     document.getElementById("epsilon").oninput = function() {
@@ -92,6 +100,12 @@ class Controller {
         document.value.net_controller.eta = 0
       }
     }    
+  }
+  
+  adjust_speed_slider(time_step) {
+    let slider = document.getElementById("speed_slider")
+    slider.value = Math.sqrt(time_step*.5)
+    document.getElementById("fps").innerHTML = time_step.toFixed(0)
   }
 
   init_settings() {
