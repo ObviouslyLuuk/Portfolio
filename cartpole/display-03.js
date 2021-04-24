@@ -35,7 +35,7 @@ class Display {
     let innerHTML = `
     <div id="content_wrapper" style="width:100%;height:100%;position:absolute;padding:10px">
     <div id="content_div" style="width: 100%; height: 100%;display:grid;grid-template-rows:min-content;">
-      <div id="content_top_div" style="display: grid; grid-template-columns: auto 60%; align-items: center; column-gap:5px;">
+      <div id="content_top_div" style="display: grid; grid-template-columns: auto 60%; align-items: end; column-gap:5px;">
         <div id="content_top_left_div" style="height:100%;display:grid;align-items:end;">
           <div id="table_div" style="display: grid; grid-template-columns: auto auto;">
             <div>Episode</div>

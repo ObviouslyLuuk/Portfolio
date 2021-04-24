@@ -1,2 +1,4 @@
 *.py
 mnist_10k.js
+.gitignore
+log.txt

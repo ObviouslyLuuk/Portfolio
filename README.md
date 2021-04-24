@@ -4,7 +4,7 @@ For other credits see credits.md
 # AI Projects
 Since last summer I've been learning about AI and testing my understanding by coding little projects with neural networks from scratch. I tried to make the projects as visual and interactive as possible so others can engage with the material like I did.
 
-Play with the projects for yourself here: [Link](obviouslyluuk.github.io/Portfolio)
+Play with the projects for yourself [here](https://obviouslyluuk.github.io/Portfolio)
 
 ## Recognizing MNIST digits
 In the first project I trained a neural network to recognize handwritten digits from the famous MNIST dataset. The most exciting bit is that you can draw your own digits and see how the network activations change. In other words, you can see how the network "thinks" in real time.
