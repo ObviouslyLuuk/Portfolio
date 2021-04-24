@@ -137,21 +137,19 @@ class Controller {
     document.getElementById("episode_limit").onchange = function() {
       document.value.game.max_steps = this.value
     }
-
     document.getElementById("load_best_btn").onclick = function() {
       document.value.game.load_best()
     }
 
-
-    document.getElementById("auto_set_best").onchange = function() {
-      document.value.game.auto_set_best = this.value
-    }
+    // document.getElementById("auto_set_best").onchange = function() {
+    //   document.value.game.auto_set_best = this.value
+    // }
     document.getElementById("auto_adjust_eta").onchange = function() {
-      document.value.game.auto_adjust_eta = this.value
+      document.value.game.auto_adjust_eta = this.checked
     }
-    document.getElementById("auto_adjust_epsilon").onchange = function() {
-      document.value.game.auto_adjust_epsilon = this.value
-    }
+    // document.getElementById("auto_adjust_epsilon").onchange = function() {
+    //   document.value.game.auto_adjust_epsilon = this.value
+    // }
     document.getElementById("printing").onchange = function() {
       document.value.game.printing = this.checked
     }
@@ -168,11 +166,9 @@ class Controller {
 
     document.getElementById("episode_limit").value = document.value.game.max_steps
 
-
-
-    document.getElementById("auto_set_best").value = document.value.game.auto_set_best
-    document.getElementById("auto_adjust_eta").value = document.value.game.auto_adjust_eta
-    document.getElementById("auto_adjust_epsilon").value = document.value.game.auto_adjust_epsilon
+    // document.getElementById("auto_set_best").value = document.value.game.auto_set_best
+    document.getElementById("auto_adjust_eta").checked = document.value.game.auto_adjust_eta
+    // document.getElementById("auto_adjust_epsilon").value = document.value.game.auto_adjust_epsilon
     document.getElementById("printing").checked = document.value.game.printing
   }
 

@@ -51,6 +51,18 @@ window.addEventListener("load", function(event) {
       netController.update()
 
       game.finish_episode()
+
+      // Adjust eta
+      if (netController.eta != 0 && game.auto_adjust_eta) {
+        let avg = game.avg_scores[0]
+        if (avg > 100 && netController.eta > netController.eta_begin/10) {
+          netController.eta = netController.eta_begin/10
+          if (game.printing) { console.log(`Decreased learning rate due to success: eta=${netController.eta}`) }
+        } else if (avg > 50 && netController.eta > netController.eta_begin/2) {
+          netController.eta = netController.eta_begin/2
+          if (game.printing) { console.log(`Decreased learning rate due to success: eta=${netController.eta}`) }
+        }
+      }
     }
 
     netController.update_target_network()
@@ -116,7 +128,7 @@ window.addEventListener("load", function(event) {
   var netController = new NetController(
     [{x: state, y: actions}], // io shape
     [{type: "Dense", size:16}], // layers
-    .001,  // eta
+    .01,  // eta
     1, // gamma .99
     64,    // batch_size
     50000, // max_memory
@@ -161,10 +173,3 @@ window.addEventListener("load", function(event) {
   window.addEventListener("resize",  resize)
 
 })
-
-function mean(array, begin=0, end=Infinity) {
-  if (end == Infinity) end = array.length
-  let sum = 0
-  for (let i = begin; i < end; i++) { sum += array[i] }
-  return sum / (end-begin)
-}

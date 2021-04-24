@@ -7,9 +7,9 @@ class Game {
     // Settings
     this.printing = false
     this.max_steps = 500
-    this.auto_set_best = 15
-    this.auto_adjust_eta = 5 // 5
-    this.auto_adjust_epsilon = 2 // 2    
+    // this.auto_set_best = 15
+    this.auto_adjust_eta = true
+    // this.auto_adjust_epsilon = 2 // 2    
 
     // Trackers
     this.episode_nr = 0
@@ -42,9 +42,9 @@ class Game {
 
     this.printing = false
     this.max_steps = 500
-    this.auto_set_best = 15
-    this.auto_adjust_eta = 5
-    this.auto_adjust_epsilon = 2
+    // this.auto_set_best = 15
+    this.auto_adjust_eta = true
+    // this.auto_adjust_epsilon = 2
 
     this.reset()
     document.value.controller.settings_update_values()

@@ -159,20 +159,22 @@ class Display {
         <br>
         <h4>Advanced Settings / Heuristics</h4>
         <div class="settings_div">
+          <!--
           <div>
             <input id="auto_set_best"> 
             <label for="auto_set_best">Automatic Reset to Best</label>
             <p class="settings_expl">Takes the average score of this amount of recent episodes. If that average is significantly lower than the high score it resets to the best parameters. Infinity turns it off</p>
           </div>
           <div>
-            <input id="auto_adjust_eta"> 
-            <label for="auto_adjust_eta">Automatic Eta Adjustment</label>
-            <p class="settings_expl">Decreases the learning rate when performing well and increases when it's not. This integer dictates how many episodes can go by without updating</p>
-          </div>
-          <div>
             <input id="auto_adjust_epsilon"> 
             <label for="auto_adjust_epsilon">Automatic Epsilon Adjustment</label>
             <p class="settings_expl">Increases the randomness when stagnating. This integer dictates how many episodes can go by without updating</p>
+          </div>
+          -->
+          <div>
+            <input id="auto_adjust_eta" type="checkbox">
+            <label for="auto_adjust_eta">Automatic Eta Adjustment</label>
+            <p class="settings_expl">Decreases the learning rate when performing well. This means you can start higher initially (like at .01) which speed up learning by a LOT. It likely depends on other parameters but when I added this it went from ~500 to ~250 episodes to solve</p>
           </div>
           <div>
             <input id="printing" type="checkbox"> 

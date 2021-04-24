@@ -117,6 +117,7 @@ class Display {
       <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
 
         <h2 style="justify-self: center;">Settings</h2>
+        <br>
         <div class="settings_div">
           <div>
             <input id="eta"> 

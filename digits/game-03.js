@@ -16,6 +16,8 @@ class Game {
     nn.eta = 1
     nn.batch_size = 100
     nn.printing = false
+
+    document.value.controller.settings_update_values()
   }
 
   get_weights(nn) {
