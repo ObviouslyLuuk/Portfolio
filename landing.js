@@ -18,7 +18,7 @@ window.addEventListener('load', function() {
     "use strict";
 
     let innerHTML = `
-    <div style="display: grid; grid-template-columns: repeat(2, 50%); height:100%;width:100%; column-gap:10px;row-gap:10px;">
+    <div id="wrapper" style="display: grid; grid-template-columns: repeat(2, 50%); column-gap:10px;row-gap:10px;">
 
         <div>
             <h1>Luuk's AI Projects</h1>
@@ -92,4 +92,15 @@ window.addEventListener('load', function() {
     document.body.insertAdjacentHTML('beforeend', innerHTML)
     document.body.insertAdjacentHTML('beforeend', style)
 
+    window.resize()
+
+})
+
+window.resize = function() {
+    document.getElementById("wrapper").style['max-height'] = `${document.body.offsetHeight}px`
+    document.getElementById("wrapper").style['max-width'] = `${document.body.offsetHeight*1.5}px`
+}
+
+window.addEventListener('resize', function() {
+    window.resize()
 })
