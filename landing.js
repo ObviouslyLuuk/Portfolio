@@ -7,6 +7,7 @@ const GIF_IDs = {
     cartpoleV2:             "1VZFPv41XRj29m9aDTnmZkgpi7ui97Zgw",
     cartpole_net_only:      "1qSB5l5fRaDpGI5nccgpL6ai7RYbSEa6o",
     cartpole_netV2_1:       "1VDFXK6NWYkHi3Ytlf4VN4ZW2GWn5U-we",
+    cartpole_netV3:         "1WEIiHcPbwVCQKHWb1gmSvLYudVGa4F-4",
     digits_draw:            "1xGccUN7Jr0zzuCXP8E8xuW45fqLX5hlO",
     digits_draw_cropped:    "1XnlhfXDf2lXq2vbMVuBolbRuheEWJOUU",
 }
@@ -23,7 +24,7 @@ window.addEventListener('load', function() {
         <div>
             <h1>Luuk's AI Projects</h1>
             <p>
-                Welcome to the landing page for my AI projects!
+                Welcome to the landing page for my portfolio!
             </p>
             <a href="https://www.github.com/obviouslyluuk/portfolio">GitHub</a>
         </div>
@@ -38,7 +39,7 @@ window.addEventListener('load', function() {
         </a>
         <a href = "index.html?cartpole">
             <div class="project_name"><h3>Cartpole</h3></div>
-            <img src="${GDRIVE_LINK+GIF_IDs.cartpole_netV2_1}" alt="Cartpole">
+            <img src="${GDRIVE_LINK+GIF_IDs.cartpole_netV3}" alt="Cartpole">
         </a>
     </div>
     `
