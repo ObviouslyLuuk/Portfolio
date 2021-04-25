@@ -100,7 +100,7 @@ class Display {
 
     let settings = `
     <div id="info_div" style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;display:none;">
-    <a id="close_info_btn" class="btn" style="position: absolute;right: 5px;top: 0px;z-index:1;">x</a>
+    <a id="close_info_btn">x</a>
     <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
 
       <h2>Info</h2>
@@ -188,28 +188,8 @@ class Display {
     </div>
     `
 
-    let style = `
-    <style>
-    .settings_expl {
-      font-size: 12px;
-      color: darkgrey;
-    }
-    h4 {
-      border-bottom: solid rgb(${COOL_BLUE});
-    }
-    .settings_div {
-      display:grid;
-      grid-template-columns:repeat(2,50%);
-    }
-    #info_div input {
-      width:60px;
-    }
-    </style>
-    `
-
     document.body.insertAdjacentHTML('beforeend', innerHTML)
     document.body.insertAdjacentHTML('beforeend', settings)
-    document.body.insertAdjacentHTML('beforeend', style)
   }
   
   updateStats(game, net_controller) {

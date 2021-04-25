@@ -1,3 +1,66 @@
+/* Luuk: */
+
+/* BUTTONS */
+input {
+  color: white;
+  background-color: #202124;
+  border: solid hsl(225, 6%, 20%) 2px;
+  border-radius: 5px;
+}
+
+.btn {
+  color: white;
+  background-color: #202124;
+  border: solid hsl(225, 6%, 20%) 2px !important;
+}
+
+.btn:hover {
+  background-color: hsl(225, 6%, 25%);
+  border: solid hsl(225, 6%, 50%) 2px;
+  color: white;
+}
+
+.btn-primary {
+  background-color: rgb(0, 115, 255);
+  border: solid transparent 2px !important;
+}
+
+.btn-primary:hover {
+  background-color: hsl(213, 100%, 70%);
+  border: solid transparent 2px !important;
+}
+
+#close_info_btn {
+  position: absolute;
+  right: 5px;
+  top: 2px;
+  z-index: 1;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+/* INFO PAGE */
+.settings_expl {
+  font-size: 12px;
+  color: darkgrey;
+}
+h4 {
+  border-bottom: solid rgb(0, 115, 255);
+}
+.settings_div {
+  display:grid;
+  grid-template-columns:repeat(2,50%);
+}
+#info_div input {
+  width:60px;
+}
+
+
+
 /* Frank Poth 02/28/2018 */
 
 * { box-sizing:border-box; margin:0; padding:0; }
