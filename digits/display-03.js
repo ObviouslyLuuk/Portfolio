@@ -73,8 +73,8 @@ class Display {
             <div>best score</div>
             <div id="best_score"></div>
           
-            <div>epochs since best cost (training)</div>
-            <div id="epochs_since_best"></div>
+            <!-- <div>epochs since best cost (training)</div>
+            <div id="epochs_since_best"></div> -->
           
             <div>total parameters</div>
             <div id="total_parameters"></div>
@@ -103,6 +103,258 @@ class Display {
 
     let info = `
     In this project a neural network is used to recognize handwritten digits from the famous MNIST dataset.
+
+    CONTROLS:
+    General:
+    Slider: Adjust the speed of training. Drag to the left to pause.
+    Reset: Resets the neural network parameters to a random value
+    Draw: Lets you draw a digit (Click epoch, batch, or example to disable)
+      Move: Lets you drag the digit around
+      Eraser: Lets you erase parts of the digit
+      Clear: Clears the square
+
+    epoch: Train per epoch. Good for training quickly and seeing big steps of progress. Doesn't visualize examples.
+    batch: Train per batch. Good for visualizing small changes in weights. Doesn't visualize examples.
+    example: Train per example. Good for visualization but trains extremely slowly
+
+    VISUALIZATION:
+    Neural Network:
+    The neural network is depicted as a network of lines (the weights), where opacity indicates weight strength. The biases aren't displayed to prevent visual clutter. The nodes in this network are the neurons. If a neuron is currently activated, this is visualized by a circle. Again, opacity indicates activation strength. Blue lines and circles represent negative weights and activations respectively. Below the output neurons their labels are displayed.
+    The highest activated label is shown in red when incorrect, and in green when correct.
+
+    Environment:
+    The numbers in the square are datapoints from the MNIST dataset. When the network identifies it correctly its border is green, otherwise it's red. When incorrect the speed will slow down temporarily to allow you to see what it got wrong. You can also use this time to press the "Draw" button to change the digit and see how the outcome is affected.
+
+    Chart:
+    In the line chart the green line represents the accuracy on the test-data, and the white on the training-data. The test-data is split off from the complete dataset before training. This is to see if the model generalizes to data it's never trained on.
+
+    Stats:
+    Epoch: The amount of finished training rounds through the entire training-data
+    Batch: The training-data consists of batches. This statistic indicates which batch the network is training on and how many there are in total.
+    Example: Each batch consists of datapoints, these are also called examples. This statistic indicates which example is being displayed and how many there are per batch.
+    last score: The test-data accuracy from the last finished epoch.
+    best score: The best test-data accuracy on any epoch so far.
+    total parameters: The total amount of weights and biases in the neural network
+    total neurons: The total amount of neurons in the network, including input and output
+
+    `
+
+    let implementation_info = `
+    16,000 datapoints (aka examples) from the dataset are used because of memory considerations. First these examples are split into test- and training-data.
+    The test-data will never be trained on and serves to check whether the model generalizes to data it's never seen.
+    <br><br>
+    <b>Feedforward:</b><br>
+    The digits of resolution 28x28 are fed into the network by taking each of the 784 pixels, 
+    normalizing the brightness value to a number between 0 and 1, and using those 784 numbers as the input activations.
+    In the visualization this is the horizontal top of the network, with no discernible neurons because there are so many.
+    To get an output the network will perform a process called feedforward, which determines neuron activations in the next layers.
+    To determine a single activation it first takes its bias and adds the sum of all the previous layer's weighted activations, 
+    we'll define this number as z. 
+    The weighted activation is a neuron's activation multiplied by the weight of its connection with the neuron whose activation 
+    we're determining (the lines in the visualization). To finally arrive at the activation we map the number z to a range we like, 
+    in this case between 0 and 1. We do this mapping using an activation function, specifically the sigmoid in this case.
+    <br><br>
+    This is done for all neurons after the input layer until we get the output activations.
+    The model's guess is simply the neuron with the highest activation in the output layer, which corresponds to a digit as you can see in the visualization.
+    <br><br>
+    Pseudocode:<br>
+    <pre>
+
+    FEEDFORWARD
+    <i># I implemented this recursively but for readability I structured it differently here</i>
+    input layer = normalized example
+    for layer of network {
+      if input layer { skip to next layer }
+      for neuron of layer {
+        sum = 0
+        for neuron' of previous layer {
+          <i># neuron.weight[neuron'.index] here is the weight between neuron and neuron'</i>
+          weighted activation = neuron'.activation * neuron.weight[neuron'.index]
+          sum += weighted activation
+        }
+        neuron.z = sum + neuron.bias
+        neuron.activation = activation_function(z)
+      }
+      if output layer {
+        guess = label of the neuron with highest activation
+      }
+    }
+    </pre>
+    <b>Backpropagation:</b><br>
+    At the start of training, all parameters (weights and biases) are initialized randomly, in this case to a number between -0.25 and 0.25.
+    This means that feedforward won't produce any meaningful outputs at first; the accuracy rate of its digit identifications will be close to
+    0.1, the same as guessing randomly. The way we train the neural network is with a process called backpropagation. After the feedforward
+    has determined the output activations, we can calculate the error (aka cost). To get the error you subtract the output activation from
+    the target for a neuron, which is 0 if that wasn't the actual digit, and 1 if it was. You then sum those for each neuron in the output layer.
+    Backprop takes the derivative of the error with respect to each weight and bias. This results in a few simple partial derivatives.
+    This starts by calculating the derivatives in the output layer, using these to calculate the ones in the previous layer, and repeating this
+    until you reach the first layer, hence propogating backwards through the network.
+    <br><br>
+    After backprop the derivatives for each seperate parameter are added to a nudge for that parameter, which isn't immediately applied.
+    <br><br>
+    Pseudocode:<br>
+    <pre>
+
+    BACKPROPAGATION
+    <i># I implemented this recursively but for readability I structured it differently here</i>
+    for layer of network in reverse {
+      if input layer { done, break out of loop }
+      for neuron of layer {
+        if output layer {
+          <i># derivative of error with respect to neuron.activation</i>
+          neuron.d_a = example.targets[neuron.index] - neuron.activation
+        }
+        else {
+          <i># neuron.d_a has already been calculated in the layer above</i>
+        }
+        neuron.d_z = (derivative of neuron.activation with respect to neuron.z) * neuron.d_a
+        neuron.d_b = (derivative of neuron.z with respect to neuron.bias) * neuron.d_z
+
+        for neuron' of previous layer {
+          neuron.d_w[neuron'.index] = (derivative of neuron.z with respect to neuron.weight[neuron'.index]) * neuron.d_z
+
+          <i># the weight between neuron and neuron' is the derivative of neuron.z with respect to neuron'.activation
+          # this needs to be summed for all neurons in the current layer to get:
+          # the derivative of error with respect to neuron'.activation</i>
+          neuron'.d_a += neuron.weight[neuron'.index] * neuron.d_z
+        }
+      }
+    }
+    return the d_b and d_w for each bias and weight
+    </pre>
+    <b>Mini-batch Gradient Descent:</b><br>
+    To spread these nudges over time but also take a (hopefully) representative sample of our training-data we apply these nudges after
+    a certain amount of examples, dividing the parameter nudge by the amount of examples to get an average nudge per example.
+    At the start of training the training-data is randomly split into batches with that certain amount of examples. You can adjust the amount
+    in the settings below. The parameter nudges are multiplied by a factor called eta (aka learning rate). If eta is too large the model
+    might overshoot its target and never recover, but if it's too small it might take too long to get to a good set of parameters.
+    <br><br>
+    Each pass through all the batches / training-data is what we call an epoch. At the end of each of these we evaluate the model by checking its
+    accuracy on the test-data using feedforward.
+    <br><br>
+    Mini-batch gradient descent is often also referred to as stochastic gradient descent. This is arguably inaccurate, as SGD originally
+    described nudging the parameters at every example. However, language evolves all the time.
+    <br>
+    The reason we spread the nudges at all is that it'd be very computationally expensive to train on the whole training-data at once, 
+    with the batch size set to the total amount of examples in the training-data, so to speak. Nudging for every example is relatively 
+    computationally inexpensive but this makes the learning much more noisy as no single example is a good representation of the dataset.
+    With mini-batch gradient descent we take the middle road.
+    <br><br>
+    Pseudocode:<br>
+    <pre>
+
+    MINI-BATCH GRADIENT DESCENT
+    Split data into test- and training-data
+    Initialize the weights and biases randomly
+    for each epoch {
+      randomly split the training-data into new batches
+      for each batch of training-data {
+        initialize nudge per parameter
+        for each example of batch {
+          feedworward(example)
+          backpropagation(example)
+          add derivatives of weights and biases to their respective parameter nudge
+        }
+        apply the parameter nudges, multiplied by eta
+      }
+      evaluate model on test-data
+    }
+    </pre>
+    `
+
+    let controls_info = `
+    <div style="display: grid; grid-template-columns: auto auto; column-gap: 5px;">
+      <div>epoch</div>
+      <div>Visualize per epoch. Good for training quickly and seeing big steps of progress. Doesn't visualize examples</div>
+
+      <div>batch</div>
+      <div>Visualize per batch. Good for visualizing small changes in weights. Doesn't visualize examples</div>
+
+      <div>example</div>
+      <div>Visualize per example. Good for visualization but trains extremely slowly</div>
+
+      <div><br></div><div><br></div>
+
+      <div>Slider</div>
+      <div>Adjust the speed of training. Drag to the left to pause</div>
+
+      <div>Reset</div>
+      <div>Resets the neural network parameters to a random value</div>
+
+      <div><br></div><div><br></div>
+
+      <div>Draw</div>
+      <div>Lets you draw a digit (Click epoch, batch, or example to disable)</div>
+
+      <div>- Move</div>
+      <div>Lets you drag the digit around</div>
+
+      <div>- Eraser</div>
+      <div>Lets you erase parts of the digit</div>
+
+      <div>- Clear</div>
+      <div>Clears the square</div>    
+    </div>
+    `
+
+    let visualization_info = `
+    <b>Neural Network:</b><br>
+    The neural network is depicted as a network of lines (the weights), where opacity indicates weight strength. The biases aren't displayed to prevent visual clutter. The nodes in this network are the neurons. If a neuron is currently activated, this is visualized by a circle. Again, opacity indicates activation strength. Blue lines and circles represent negative weights and activations respectively. Below the output neurons their labels are displayed.
+    The highest activated label is shown in red when incorrect, and in green when correct.<br>
+    <br>
+    <b>Input:</b><br>
+    The numbers in the square are datapoints from the MNIST dataset. When the network identifies it correctly its border is green, otherwise it's red. When incorrect the speed will slow down temporarily to allow you to see what it got wrong. You can also use this time to press the "Draw" button to change the digit and see how the outcome is affected.<br>
+    <br>
+    <b>Chart:</b><br>
+    The chart doesn't start until after the first finished epoch. Enable epoch training to speed this up.<br>
+    In the line chart the green line represents the accuracy on the test-data, and the white on the training-data. The test-data is split off from the complete dataset before training. This is to see if the model generalizes to data it's never trained on.<br>
+    <br>
+    <b>Stats:</b>
+    <div style="display: grid; grid-template-columns: auto auto; column-gap:5px;">
+      <div>epoch</div>
+      <div>The amount of finished training rounds through the entire training-data</div>
+
+      <div>batch</div>
+      <div>The training-data consists of batches. This statistic indicates which batch the network is training on and how many there are in total</div>
+
+      <div>example</div>
+      <div>Each batch consists of datapoints, these are also called examples. This statistic indicates which example is being displayed and how many there are per batch</div>
+
+      <div><br></div><div><br></div>
+
+      <div>last score</div>
+      <div>The test-data accuracy from the last finished epoch</div>
+
+      <div>best score</div>
+      <div>The best test-data accuracy on any epoch so far</div>
+
+      <div><br></div><div><br></div>
+
+      <div>total parameters</div>
+      <div>The total amount of weights and biases in the neural network</div>
+
+      <div>total neurons</div>
+      <div>The total amount of neurons in the network, including input and output</div>
+    </div>
+    `
+
+    let info_html = `
+    In this project a neural network is used to recognize handwritten digits from the famous MNIST dataset.
+
+    <details>
+      <summary><h4>VISUALIZATION</h4></summary>
+      ${visualization_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>CONTROLS</h4></summary>
+      ${controls_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>IMPLEMENTATION</h4></summary>
+      ${implementation_info}
+    </details>    
     `
 
     let settings = `
@@ -111,7 +363,7 @@ class Display {
     <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
 
       <h2>Info</h2>
-      <p>${info}</p>
+      <p>${info_html}</p>
       <br>
 
       <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
@@ -122,12 +374,12 @@ class Display {
           <div>
             <input id="eta"> 
             <label for="eta">Eta</label>
-            <p class="settings_expl">This is the factor with which the epsilon value is multiplied each episode, to gradually decrease randomness.</p>
+            <p class="settings_expl">This is the factor by which the parameter nudges are multiplied before applying.</p>
           </div>
           <div>
             <input id="batch_size"> 
             <label for="batch_size">Batch Size</label>
-            <p class="settings_expl">This is the discount factor of the estimated future reward when calculating the error of the network.</p>
+            <p class="settings_expl">This is the amount of examples between every parameter nudge application.</p>
           </div>
           <div>
             <button id="load_best_btn" class="btn">Load Best Parameters</button>
@@ -155,7 +407,7 @@ class Display {
     document.getElementById("example_nr").innerHTML = `${nn.epoch.example_nr}/${nn.batches[nn.epoch.batch_nr].length}`
     document.getElementById("last_score").innerHTML = nn.test_scores[0].toFixed(2)
     document.getElementById("best_score").innerHTML = nn.best_test_score.toFixed(2)
-    document.getElementById("epochs_since_best").innerHTML = nn.epochs_since_best
+    // document.getElementById("epochs_since_best").innerHTML = nn.epochs_since_best
     document.getElementById("total_parameters").innerHTML = nn.total_parameters
     document.getElementById("total_neurons").innerHTML = nn.total_neurons
   }

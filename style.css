@@ -49,7 +49,11 @@ input {
   color: darkgrey;
 }
 h4 {
+  display: inline-block;
+}
+summary {
   border-bottom: solid rgb(0, 115, 255);
+  outline: transparent;
 }
 .settings_div {
   display:grid;
@@ -57,6 +61,21 @@ h4 {
 }
 #info_div input {
   width:60px;
+}
+
+pre {
+  color: white;
+  /* font: inherit; */
+  border: solid grey 1px;
+  /* https://stackoverflow.com/questions/248011/how-do-i-wrap-text-in-a-pre-tag */
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */  
+}
+pre i {
+  color: grey;
 }
 
 
