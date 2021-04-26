@@ -112,18 +112,167 @@ class Display {
     </div>
     `
 
-    let info = `
-    In this project the little red car is supposed to learn how to drive around the track without hitting the edges. 
-    It attempts this by using a Double Deep Q-Network (DDQN), which updates neural network weights and biases based on experience replay. 
+    let highlights_info = `
+    1. Try drawing your own track and going into the settings below to "Load Best Parameters" to see how the trained racer does.
+    <br><br>
+    2. Try racing the tracks yourself to get a feel for what the racer has to learn.
+    <br><br>
+    3. Try playing with the settings to see how they affect the learning.
+    `
+
+    let implementation_info = `
     The main neural network is the policy network; it accepts input from the car (Speed, and Distance to the edges in 6 directions) 
-    and gives a Q-value (the total expected future reward) for each possible policy (Left, Right or Forward) it can take. 
+    and gives a Q-value (the total expected future reward; can be any real number) for each possible policy (Left, Right or Forward) it can take. 
     The car then takes the decision with the highest value, or a completely random one, where epsilon (exploration rate) 
     is the probability it does something random. The experience from every timestep, consisting of the input state, action, 
     resulting state and reward, is saved into a memory replay buffer. At every timestep a random batch is taken from this replay buffer, 
-    on which we run Stochastic Gradient Descent (see the digits project for a more detailed description).
-    The updates to the weights and biases are scaled using the learning rate eta (sometimes called alpha).
-    <br> What makes a DQN a Double DQN is the addition of a target network.
+    on which we run gradient descent (see the digits project for a more detailed description).
+    The updates to the weights and biases are scaled using the learning rate eta (sometimes called alpha in this context).
+    <br><br>
+    A DQN calculates its error by taking the difference between the target and the Q-value of the taken action. The target
+    (aka expectation) is determined by the observed reward from the taken action, and adding the highest Q-value from the new
+    observed state, after multiplying that Q-value by gamma (the discount factor). A gamma below 1 puts more emphasis on the observed
+    short term reward than the expected. In the case of racer we don't want gamma to be 1 because of the way this equation works. 
+    In every Q-value the expected Q-value for the next state is incorporated through training. Gamma below 1 limits the impact that rewards
+    far into the future have. Gamma at 0.95 for example means that the expected reward 10 steps down the line only counts for 0.95^10 = 0.60
+    of its actual value. If gamma is 1 this means the Q-values will explode into infinity much sooner which breaks the network, this task
+    happened to be prone to that problem so that's why a lower value was chosen.
+    <br><br>
+    The problem with this method is that the target and Q-value for the taken action are both estimated by the policy network.
+    This means that a nudge to the weights and biases won't only adjust the Q-value for the taken action as an outcome,
+    but also the target itself. This is inherently unstable because immediately after the nudge of the Q-value towards the target, 
+    the target has moved to a different value.
+    <br>
+    To fix this we add another neural network, the target network. This is what makes a DQN a double DQN. The target network starts
+    as an exact copy of the policy network, but the nudges aren't applied to it so the target stays at the same value. As you can
+    imagine, this on its own causes the policy network to converge to some useless function because the target network doesn't "know"
+    any more than the policy network at the beginning. However, if we update the target network once in a while by copying the policy
+    network's parameters, the target network will slowly step along with the policy network's training. By letting the target network
+    remain the same for a number of timesteps we stabilize the policy training, at the expense of training speed.
     `
+
+    let controls_info = `
+    <div style="display: grid; grid-template-columns: auto auto; column-gap: 5px;">
+      <div>epsilon</div>
+      <div>adjustable by entering a number (easier when paused). This is the rate of exploration (probability of taking a random action at any timestep)</div>
+
+      <div>eta</div>
+      <div>adjustable by entering a number (easier when paused). This is the learning rate (factor by which nudges to parameters are multiplied)</div>
+
+      <div><br></div><div><br></div>
+
+      <div>Slider</div>
+      <div>Adjust the speed of training. Drag to the left to pause</div>
+
+      <div>Reset</div>
+      <div>Resets the neural network parameters to a random value</div>
+
+      <div>Save</div>
+      <div>Lets you download the network parameters to a text file</div>
+
+      <div>Load</div>
+      <div>Lets you upload a text file of network parameters and replace the current ones. Only possible with the same network topology</div>
+
+      <div><br></div><div><br></div>
+
+      <div>Drive</div>
+      <div>Disables the AI temporarily and lets you control the car. Use the arrow keys (Click again to disable)</div>
+
+      <div>Draw</div>
+      <div>Lets you draw a racetrack (Click again to disable)</div>
+
+      <div>- Border</div>
+      <div>Lets you click to draw walls/borders</div>
+
+      <div>- Target</div>
+      <div>Lets you click to draw targets</div>
+
+      <div>- Car</div>
+      <div>Lets you click to move the car</div>
+
+      <div><br></div><div><br></div>
+
+      <div>- Clear</div>
+      <div>Empties the current track</div>
+
+      <div>- Save</div>
+      <div>Lets you download the track to a text file</div>
+
+      <div>- Load</div>
+      <div>Lets you upload a text file of a track and replace the current one</div>
+
+      <div>Tracks</div>
+      <div>hover to select a pre-made track</div>
+    </div>   
+    `
+
+    let visualization_info = `
+    <b>Neural Network:</b><br>
+    The neural network is depicted as a network of lines (the weights), where opacity indicates weight strength. The biases aren't displayed to prevent visual clutter. The nodes in this network are the neurons. If a neuron is currently activated, this is visualized by a circle. Again, opacity indicates activation strength. Blue lines and circles represent negative weights and activations respectively. Below the output neurons their labels are displayed.
+    The blue label is the one with the highest activation.<br>
+    <br>
+    <b>Environment:</b><br>
+    The little red rectangle is the car, the white lines are the walls/borders of the track, and the blue lines are targets that reward the racer when touched.<br>
+    <br>
+    <b>Chart:</b><br>
+    In the line chart the blue line represents the score at each episode, and the white the rolling average over the past 100 episodes.<br>
+    <br>
+    <b>Stats:</b>
+    <div style="display: grid; grid-template-columns: auto auto; column-gap:5px;">
+      <div>Episode</div>
+      <div>The amount of attempts the racer has taken so far</div>
+
+      <div>Best</div>
+      <div>The best score of any episode so far</div>
+
+      <div>Avg</div>
+      <div>The rolling average score over the past 100 episodes</div>
+
+      <div>Episodes since best</div>
+      <div>The amount of episodes that have passed since the best score was achieved</div>
+
+      <div>epsilon</div>
+      <div>The exploration rate. This is the probability a random action is chosen instead of the policy network's highest outcome at any timestep</div>
+      
+      <div>eta</div>
+      <div>The learning rate (aka alpha). This is the factor by which the adjustment to the policy network is scaled at each timestep</div>
+
+      <div><br></div><div><br></div>
+
+      <div>total parameters</div>
+      <div>The total amount of weights and biases in the neural network</div>
+
+      <div>total neurons</div>
+      <div>The total amount of neurons in the network, including input and output</div>
+    </div>  
+    `
+
+    let info_html = `
+    In this project the little red car is supposed to learn how to drive around the track without hitting the edges. 
+    It attempts this by using a Double Deep Q-Network (DDQN), which updates neural network weights and biases based on experience replay.
+    <br><br>
+    Significant progress is to be expected by episode 70, at default settings. However, with luck it can make progress far sooner.
+
+    <details>
+      <summary><h4>HIGHLIGHTS</h4></summary>
+      ${highlights_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>VISUALIZATION</h4></summary>
+      ${visualization_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>CONTROLS</h4></summary>
+      ${controls_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>IMPLEMENTATION</h4></summary>
+      ${implementation_info}
+    </details>    
+    `    
 
     let settings = `
     <div id="info_div" style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;display:none;">
@@ -131,10 +280,10 @@ class Display {
     <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
 
       <h2>Info</h2>
-      <p>${info}</p>
+      <p>${info_html}</p>
       <br>
 
-      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+      <div id="settings_div" style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
 
         <h2 style="justify-self: center;">Settings</h2>
         <h4>Basic Hyperparameters</h4>

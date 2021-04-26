@@ -83,19 +83,139 @@ class Display {
       </div>
     </div>
     </div>
-    ` 
+    `
 
-    let info = `
-    In this project the little white cart is supposed to learn how to balance the blue bar without it reaching 12 degrees. 
-    It attempts this by using a Double Deep Q-Network (DDQN), which updates neural network weights and biases based on experience replay. 
+    let highlights_info = `
+    1. Go into the settings below and click "Load Best Parameters" to see the trained cart perform.
+    <br><br>
+    2. Try taking control of the cart by clicking "Drive" and get a feel for the task.
+    <br><br>
+    3. Try playing with the settings to see how it affects the learning.
+    `
+
+    let implementation_info = ` 
     The main neural network is the policy network; it accepts input from the cart (Position, Velocity, Angle and Angular Velocity) 
-    and gives a Q-value (the total expected future reward) for each possible policy (Left or Right) it can take. 
+    and gives a Q-value (the total expected future reward; can be any real number) for each possible policy (Left or Right) it can take. 
     The cart then takes the decision with the highest value, or a completely random one, where epsilon (exploration rate) 
     is the probability it does something random. The experience from every timestep, consisting of the input state, action, 
     resulting state and reward, is saved into a memory replay buffer. At every timestep a random batch is taken from this replay buffer, 
-    on which we run Stochastic Gradient Descent (see the digits project for a more detailed description).
-    The updates to the weights and biases are scaled using the learning rate eta (sometimes called alpha).
-    <br> What makes a DQN a Double DQN is the addition of a target network.
+    on which we run gradient descent (see the digits project for a more detailed description).
+    The updates to the weights and biases are scaled using the learning rate eta (sometimes called alpha in this context).
+    <br><br>
+    A DQN calculates its error by taking the difference between the target and the Q-value of the taken action. The target
+    (aka expectation) is determined by the observed reward from the taken action, and adding the highest Q-value from the new
+    observed state, after multiplying that Q-value by gamma (the discount factor). A gamma below 1 puts more emphasis on the observed
+    short term reward than the expected. In the case of cartpole the same reward is given at every timestep so there are no differences
+    in the short term. That's why the value of 1 was chosen here, but slightly lower works too.
+    <br><br>
+    The problem with this method is that the target and Q-value for the taken action are both estimated by the policy network.
+    This means that a nudge to the weights and biases won't only adjust the Q-value for the taken action as an outcome,
+    but also the target itself. This is inherently unstable because immediately after the nudge of the Q-value towards the target, 
+    the target has moved to a different value.
+    <br>
+    To fix this we add another neural network, the target network. This is what makes a DQN a double DQN. The target network starts
+    as an exact copy of the policy network, but the nudges aren't applied to it so the target stays at the same value. As you can
+    imagine, this on its own causes the policy network to converge to some useless function because the target network doesn't "know"
+    any more than the policy network at the beginning. However, if we update the target network once in a while by copying the policy
+    network's parameters, the target network will slowly step along with the policy network's training. By letting the target network
+    remain the same for a number of timesteps we stabilize the policy training, at the expense of training speed.
+    `
+
+    let controls_info = `
+    <div style="display: grid; grid-template-columns: auto auto; column-gap: 5px;">
+      <div>epsilon</div>
+      <div>adjustable by entering a number (easier when paused). This is the rate of exploration (probability of taking a random action at any timestep)</div>
+
+      <div>eta</div>
+      <div>adjustable by entering a number (easier when paused). This is the learning rate (factor by which nudges to parameters are multiplied)</div>
+
+      <div><br></div><div><br></div>
+
+      <div>Slider</div>
+      <div>Adjust the speed of training. Drag to the left to pause</div>
+
+      <div>Reset</div>
+      <div>Resets the neural network parameters to a random value</div>
+
+      <div>Save</div>
+      <div>Lets you download the network parameters to a text file</div>
+
+      <div>Load</div>
+      <div>Lets you upload a text file of network parameters and replace the current ones. Only possible with the same network topology</div>
+
+      <div><br></div><div><br></div>
+
+      <div>Drive</div>
+      <div>Disables the AI temporarily and lets you control the cart. Use the arrow keys (Click again to disable)</div>    
+    </div>   
+    `
+
+    let visualization_info = `
+    <b>Neural Network:</b><br>
+    The neural network is depicted as a network of lines (the weights), where opacity indicates weight strength. The biases aren't displayed to prevent visual clutter. The nodes in this network are the neurons. If a neuron is currently activated, this is visualized by a circle. Again, opacity indicates activation strength. Blue lines and circles represent negative weights and activations respectively. Below the output neurons their labels are displayed.
+    The blue label is the one with the highest activation.<br>
+    <br>
+    <b>Environment:</b><br>
+    The white rectangle is the cart and the blue bar is the pole it's trying to keep upright.<br>
+    <br>
+    <b>Chart:</b><br>
+    In the line chart the blue line represents the score at each episode, and the white the rolling average over the past 100 episodes.<br>
+    <br>
+    <b>Stats:</b>
+    <div style="display: grid; grid-template-columns: auto auto; column-gap:5px;">
+      <div>Episode</div>
+      <div>The amount of attempts the cart has taken so far</div>
+
+      <div>Best</div>
+      <div>The best score of any episode so far</div>
+
+      <div>Avg</div>
+      <div>The rolling average score over the past 100 episodes</div>
+
+      <div>Episodes since best</div>
+      <div>The amount of episodes that have passed since the best score was achieved</div>
+
+      <div>epsilon</div>
+      <div>The exploration rate. This is the probability a random action is chosen instead of the policy network's highest outcome at any timestep</div>
+      
+      <div>eta</div>
+      <div>The learning rate (aka alpha). This is the factor by which the adjustment to the policy network is scaled at each timestep</div>
+
+      <div><br></div><div><br></div>
+
+      <div>total parameters</div>
+      <div>The total amount of weights and biases in the neural network</div>
+
+      <div>total neurons</div>
+      <div>The total amount of neurons in the network, including input and output</div>
+    </div>  
+    `
+
+    let info_html = `
+    In this project the little white cart is supposed to learn how to balance the blue bar without it reaching an angle of 12 degrees.
+    It attempts this by using a Double Deep Q-Network (DDQN), which updates neural network weights and biases based on experience replay.
+    <br><br>
+    Significant progress is to be expected by episode 100, at default settings. This is quite consistent.
+
+    <details>
+      <summary><h4>HIGHLIGHTS</h4></summary>
+      ${highlights_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>VISUALIZATION</h4></summary>
+      ${visualization_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>CONTROLS</h4></summary>
+      ${controls_info}
+    </details>
+    <br>
+    <details>
+      <summary><h4>IMPLEMENTATION</h4></summary>
+      ${implementation_info}
+    </details>    
     `
 
     let settings = `
@@ -104,10 +224,10 @@ class Display {
     <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
 
       <h2>Info</h2>
-      <p>${info}</p>
+      <p>${info_html}</p>
       <br>
 
-      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+      <div id="settings_div" style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
 
         <h2 style="justify-self: center;">Settings</h2>
         <h4>Basic Hyperparameters</h4>

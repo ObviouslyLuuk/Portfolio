@@ -51,6 +51,9 @@ input {
 h4 {
   display: inline-block;
 }
+#settings_div h4 {
+  border-bottom: solid rgb(0, 115, 255);
+}
 summary {
   border-bottom: solid rgb(0, 115, 255);
   outline: transparent;

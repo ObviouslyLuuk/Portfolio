@@ -101,42 +101,16 @@ class Display {
     </div> 
     `
 
-    let info = `
-    In this project a neural network is used to recognize handwritten digits from the famous MNIST dataset.
-
-    CONTROLS:
-    General:
-    Slider: Adjust the speed of training. Drag to the left to pause.
-    Reset: Resets the neural network parameters to a random value
-    Draw: Lets you draw a digit (Click epoch, batch, or example to disable)
-      Move: Lets you drag the digit around
-      Eraser: Lets you erase parts of the digit
-      Clear: Clears the square
-
-    epoch: Train per epoch. Good for training quickly and seeing big steps of progress. Doesn't visualize examples.
-    batch: Train per batch. Good for visualizing small changes in weights. Doesn't visualize examples.
-    example: Train per example. Good for visualization but trains extremely slowly
-
-    VISUALIZATION:
-    Neural Network:
-    The neural network is depicted as a network of lines (the weights), where opacity indicates weight strength. The biases aren't displayed to prevent visual clutter. The nodes in this network are the neurons. If a neuron is currently activated, this is visualized by a circle. Again, opacity indicates activation strength. Blue lines and circles represent negative weights and activations respectively. Below the output neurons their labels are displayed.
-    The highest activated label is shown in red when incorrect, and in green when correct.
-
-    Environment:
-    The numbers in the square are datapoints from the MNIST dataset. When the network identifies it correctly its border is green, otherwise it's red. When incorrect the speed will slow down temporarily to allow you to see what it got wrong. You can also use this time to press the "Draw" button to change the digit and see how the outcome is affected.
-
-    Chart:
-    In the line chart the green line represents the accuracy on the test-data, and the white on the training-data. The test-data is split off from the complete dataset before training. This is to see if the model generalizes to data it's never trained on.
-
-    Stats:
-    Epoch: The amount of finished training rounds through the entire training-data
-    Batch: The training-data consists of batches. This statistic indicates which batch the network is training on and how many there are in total.
-    Example: Each batch consists of datapoints, these are also called examples. This statistic indicates which example is being displayed and how many there are per batch.
-    last score: The test-data accuracy from the last finished epoch.
-    best score: The best test-data accuracy on any epoch so far.
-    total parameters: The total amount of weights and biases in the neural network
-    total neurons: The total amount of neurons in the network, including input and output
-
+    let highlights_info = `
+    1. Try drawing, erasing and moving your own digits and see if you can tell what features the model looks for in identifying different digits.
+    Watch the activations in the network change in real time.
+    <br><br>
+    2. Try modifying original MNIST digits by clicking "example" and then "draw" when a digit appears you want to adjust.
+    <br><br>
+    3. Click "Reset" to see a new model train. "example" mode is too slow to see training progress, select "epoch" or "batch" for this.
+    Watch the connections (weights) in the network change and get stronger or weaker.
+    <br><br>
+    4. As more epochs pass, watch for overfitting. You can see this in the line chart if the training-data accuracy keeps rising but the test-data accuracy starts slowly declining.
     `
 
     let implementation_info = `
@@ -348,7 +322,14 @@ class Display {
 
     let info_html = `
     In this project a neural network is used to recognize handwritten digits from the famous MNIST dataset.
+    <br><br>
+    When training a new model, significant progress is to be expected immediately, at default settings. This is very consistent.
 
+    <details>
+      <summary><h4>HIGHLIGHTS</h4></summary>
+      ${highlights_info}
+    </details>
+    <br>
     <details>
       <summary><h4>VISUALIZATION</h4></summary>
       ${visualization_info}
@@ -374,7 +355,7 @@ class Display {
       <p>${info_html}</p>
       <br>
 
-      <div style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+      <div id="settings_div" style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
 
         <h2 style="justify-self: center;">Settings</h2>
         <br>
