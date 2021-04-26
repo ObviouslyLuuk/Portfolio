@@ -137,10 +137,6 @@ window.NetController = class NetController {
 
                 let q_value = Math.max(...output_activations)
 
-                // Save q values for logging the average
-                this.q_log.sum += Math.abs(q_value)
-                this.q_log.length++
-
                 expectation = experience.r + this.gamma * q_value
             }
 
@@ -171,9 +167,6 @@ window.NetController = class NetController {
         } else if (this.epsilon < this.epsilon_end && this.epsilon != 0) {
             this.epsilon = this.epsilon_end
         } 
-
-        this.q_log.sum = 0
-        this.q_log.length = 0
     }
 
     reset() {
@@ -189,7 +182,6 @@ window.NetController = class NetController {
         this.current_memory = {}
         this.epsilon = this.epsilon_begin
         this.target_update_timer = 0
-        this.q_log = {sum:0,length:0}
     }    
 
     // Other functions

@@ -53,6 +53,12 @@ window.addEventListener("load", function(event) {
   }
 
   function train_update() {
+    if (game.world.switched_map) {
+      // netController.replay_memory = []
+      fill_replay_memory(.2)
+      game.world.switched_map = false
+    }
+
     score = game.world.score
 
     if (game.world.player.collided || last_score_increase > game.no_target_time || game.ep_timesteps > game.max_steps) {
@@ -121,7 +127,7 @@ window.addEventListener("load", function(event) {
     if (netController.eta != 0 && game.world.lap_steps == 1) {
       let lap = game.world.lap
 
-      if (game.auto_adjust_epsilon) {
+      if (game.auto_adjust_epsilon != Infinity) {
         // Decrease randomness for every completed lap past two
         if (lap > 2 && netController.epsilon > netController.epsilon_end) {
           netController.epsilon*=.95
@@ -129,7 +135,7 @@ window.addEventListener("load", function(event) {
         }      
       }
 
-      if (game.auto_adjust_eta) {
+      if (game.auto_adjust_eta != Infinity) {
         // Make the learning rate more precise when it's completing laps
         if (lap == 2) {
           netController.eta = netController.eta_begin/10
@@ -157,11 +163,11 @@ window.addEventListener("load", function(event) {
     game.update()
   }
 
-  function fill_replay_memory() {
+  function fill_replay_memory(portion=.2) {
     console.log("Filling replay memory:")
 
     let pre_episodes = 0
-    for (let i = 0; i < netController.max_memory/5; i++) {
+    for (let i = 0; i < netController.max_memory*portion; i++) {
       if (game.world.player.collided) {
         game.reset()     
 
@@ -212,7 +218,7 @@ window.addEventListener("load", function(event) {
   var display    = new Display()
   var controller = new Controller()
   var game       = new Game()
-  var engine     = new Engine(1000/60, render, update)
+  var engine     = new Engine(1000/128, render, update)
 
   var sensors = [ // in order
     {corner: "frontLeft", dirs: ["straight"]}, 
@@ -236,13 +242,13 @@ window.addEventListener("load", function(event) {
     [{type: "Dense", size:16}], // layers
     .01,                                                 // eta
     .99, // gamma
-    32,                                                   // batch_size 32
+    1000,                                                   // batch_size 32
     30000,                                                // max_memory
     1,                                                    // epsilon
     .01,                                                   // epsilon_end
     .95,                                                // epsilon_decay
     true,                                                 // double_dqn
-    1000                                                  // target_update_time
+    500                                                  // target_update_time
   )
 
   document.value = {

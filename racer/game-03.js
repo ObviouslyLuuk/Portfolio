@@ -47,7 +47,7 @@ class Game {
     net_controller.batch_size = 32
     net_controller.change_buffer_size(100000)
     net_controller.double_dqn = true
-    net_controller.target_update_time = 1000
+    net_controller.target_update_time = 500
 
     this.world.set_default_map()
     this.world.friction = .93
@@ -180,6 +180,8 @@ Game.World = class {
       target: null,
     }
 
+    this.switched_map = false // Tracks when a map is switched
+
   }
 
   init_map(track_ratio=.3) {
@@ -268,6 +270,7 @@ Game.World = class {
     let pos = map.player_pos
     this.set_starting_pos(pos, pos.dir)
 
+    this.switched_map = true
     this.game.reset()
     this.game.best_params = {layer_design: [], parameters: []}
     this.game.best_score = -Infinity
@@ -280,6 +283,7 @@ Game.World = class {
     this.init_map()
     this.player.set_default_starting_pos(this.width, this.default_track_width)
 
+    this.switched_map = true
     this.game.reset()
     this.game.best_params = {layer_design: [], parameters: []}
     this.game.best_score = -Infinity

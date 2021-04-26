@@ -53,13 +53,22 @@ window.addEventListener("load", function(event) {
       game.finish_episode()
 
       // Adjust eta
-      if (netController.eta != 0 && game.auto_adjust_eta) {
+      if (netController.eta != 0 && game.auto_adjust_eta && game.scores.length > 1) {
         let avg = game.avg_scores[0]
-        if (avg > 100 && netController.eta > netController.eta_begin/10) {
+        if (avg > 195 && game.max_steps != Infinity) {
+          game.max_steps = Infinity
+          console.log(`Cartpole Solved at episode ${game.episode_nr}!`)
+        } else if (avg > 100 && netController.eta > netController.eta_begin/10) {
           netController.eta = netController.eta_begin/10
+          netController.target_update_time = 1000
           if (game.printing) { console.log(`Decreased learning rate due to success: eta=${netController.eta}`) }
         } else if (avg > 50 && netController.eta > netController.eta_begin/2) {
           netController.eta = netController.eta_begin/2
+          netController.target_update_time = 500
+          if (game.printing) { console.log(`Decreased learning rate due to success: eta=${netController.eta}`) }
+        } else if (avg > 30 && netController.eta > netController.eta_begin*.75) {
+          netController.eta = netController.eta_begin*.75
+          netController.target_update_time = 300
           if (game.printing) { console.log(`Decreased learning rate due to success: eta=${netController.eta}`) }
         }
       }
@@ -96,7 +105,7 @@ window.addEventListener("load", function(event) {
   function fill_replay_memory() {
     console.log("Filling replay memory:")
 
-    for (let i = 0; i < netController.max_memory; i++) {
+    for (let i = 0; i < netController.max_memory*.2; i++) {
       if (game.world.done) {
         game.world.reset()
       }
@@ -117,7 +126,7 @@ window.addEventListener("load", function(event) {
   var controller = new Controller()
   var game       = new Game()
   var display    = new Display(game.world)
-  var engine     = new Engine(1000/60, render, update)
+  var engine     = new Engine(1000/128, render, update)
 
   var actions = [
     "moveRight",
@@ -130,13 +139,13 @@ window.addEventListener("load", function(event) {
     [{type: "Dense", size:16}], // layers
     .01,  // eta
     1, // gamma .99
-    64,    // batch_size
+    1000,    // batch_size
     50000, // max_memory
     1,     // epsilon
     .01,   // epsilon_end
-    .995, // epsilon_decay
+    .99, // epsilon_decay
     true, // double_dqn
-    500 // target_update_time (maybe start low like at 100 and then build it up for stability?)
+    100 // target_update_time (maybe start low like at 100 and then build it up for stability?)
   )
   
   document.value = {

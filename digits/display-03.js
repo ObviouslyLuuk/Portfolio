@@ -184,13 +184,21 @@ class Display {
     At the start of training, all parameters (weights and biases) are initialized randomly, in this case to a number between -0.25 and 0.25.
     This means that feedforward won't produce any meaningful outputs at first; the accuracy rate of its digit identifications will be close to
     0.1, the same as guessing randomly. The way we train the neural network is with a process called backpropagation. After the feedforward
-    has determined the output activations, we can calculate the error (aka cost). To get the error you subtract the output activation from
-    the target for a neuron, which is 0 if that wasn't the actual digit, and 1 if it was. You then sum those for each neuron in the output layer.
+    has determined the output activations, we can calculate the error (aka cost). 
+    <br><br>
+    To get the error you take the difference between an output activation and its target, and sum that for all output neurons.
+    There are nuances in how this difference is calculated but the simplest one is just (target - activation).
+    The target for an output neuron is either 1 or 0. Lets say the correct identification was 9, then the targets would be: [0,0,0,0,0,0,0,0,0,1],
+    whilst the output activations might be [0.56, 0.36, 0.26, 0.02, 0.15, 0.71, 0.42, 0.30, 0.69, 0.84]. As you can see in those activations,
+    its guess was correct because 0.84 corresponds to 9 and is the highest activation. However, ideally this activation would be 1 because it's
+    correct, and all other activations would be 0 because they aren't. Now we need to use this information to find out how to nudge the
+    model parameters in the right direction.
+    <br><br>
     Backprop takes the derivative of the error with respect to each weight and bias. This results in a few simple partial derivatives.
     This starts by calculating the derivatives in the output layer, using these to calculate the ones in the previous layer, and repeating this
     until you reach the first layer, hence propogating backwards through the network.
     <br><br>
-    After backprop the derivatives for each seperate parameter are added to a nudge for that parameter, which isn't immediately applied.
+    After backprop the derivatives for each seperate parameter are added to a nudge for that parameter, which isn't immediately applied...
     <br><br>
     Pseudocode:<br>
     <pre>
