@@ -24,8 +24,8 @@ In the second project I tackled the well known environment where a cart has to b
 ![Cartpole balancing](https://drive.google.com/uc?id=1cUWwA_Hp71pzx8S6JFJbS5KNrHJezXg2)
 *The white cart trying to balance the blue pole.*
 
-I chose to use a Double DQN, reusing the previous neural network as policy and target network. With the right parameters it can solve the environment in around 500 episodes (meaning: it achieves a rolling average of 196.0 over a hundred episodes), which translates to a few minutes depending on your hardware.
-Larger networks like the one you see below learned faster, down to only a few hundred, but were prone to exploding gradients.
+I chose to use a Double DQN, reusing the previous neural network as policy and target network. With the right parameters it can solve the environment in around 150 episodes (meaning: it achieves a rolling average of 195.0 over a hundred episodes), which translates to a few minutes depending on your hardware.
+Larger networks like the one you see below were prone to exploding gradients so I chose a network with one hidden layer of 16 neurons.
 
 ![Exploding gradients in cartpole](https://drive.google.com/uc?id=168la_1JjPrXqQ70SFRdq8xgSyJTPWWjt)
 *Exploding gradients visualized in the cartpole project.*
