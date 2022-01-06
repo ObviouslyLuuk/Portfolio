@@ -160,6 +160,8 @@ window.addEventListener("load", function(event) {
    //// INITIALIZE ////
   ////////////////////
 
+  document.title = "Luuk's Cartpole"
+
   display.buffer.cart.canvas.height = game.world.height
   display.buffer.cart.canvas.width  = game.world.width
 

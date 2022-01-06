@@ -90,6 +90,8 @@ window.addEventListener("load", function(event) {
    //// INITIALIZE ////
   ////////////////////
 
+  document.title = "Luuk's Digits"
+
   display.buffer.input.canvas.height = 28
   display.buffer.input.canvas.width  = 28
 

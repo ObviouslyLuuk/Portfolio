@@ -263,6 +263,8 @@ window.addEventListener("load", function(event) {
    //// INITIALIZE ////
   ////////////////////
 
+  document.title = "Luuk's Racer"
+
   display.buffer.map.canvas.height = game.world.height
   display.buffer.map.canvas.width = game.world.width
   display.buffer.car.canvas.height = game.world.height
