@@ -74,7 +74,7 @@ window.addEventListener('load', function() {
     </style>
     `
 
-    document.getElementsByTagName("a").forEach(element => {
+    Array.from(document.getElementsByTagName("a")).forEach(element => {
         element.addEventListener('mousemove', function() {
             this.getElementsByTagName("img")[0].style.opacity = .2
             this.getElementsByTagName("div")[0].style.display = 'grid'
